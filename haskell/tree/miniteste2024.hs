@@ -4,6 +4,10 @@ type Match = ((String, String), (Int, Int))
 type MatchDay = [Match]
 type League = [MatchDay]
 
+myLeague :: League
+myLeague = [[(("Porto","Sporting"),(2,2)),(("Benfica","Vitoria SC"),(4,0))],[(("Porto","Benfica"),(5,0)),(("Vitoria SC","Sporting"),(3,2))],[(("Vitoria SC","Porto"),(1,2)),(("Sporting","Benfica"),(2,1))]]
+
+
 -- "Porto" ou "Draw"
 winner :: Match -> String
 winner ((t1, t2), (s1, s2))
@@ -27,4 +31,5 @@ numMatchDaysWithDraws league = length [() | matchDay <- league, match <- matchDa
 
 -- Lista das equipas que ganharam por muito (+3 gols de vantagens)
 -- [(1, ["Porto"]), (2, ["Porto", "Benfica"]), ...]
--- bigWins :: League -> [(Int, [String])]
+bigWins :: League -> [(Int, [String])]
+bigWins league = [(i, [winner m | m@((t1, t2), (s1, s2)) <- matchDay, abs (s1 - s2) >= 3]) | (i, matchDay) <- zip [1..] league]
