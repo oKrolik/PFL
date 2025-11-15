@@ -1,0 +1,1 @@
+ghc Calculator.hs -o calc && ./calc < sample1.txt
