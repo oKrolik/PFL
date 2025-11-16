@@ -1,4 +1,4 @@
 dups :: [a] -> [a]
 dups [] = []
-dups [x] = [x]
-dups (x:y:xs) = (x:x:y:dups xs)
+dups [x] = [x, x]
+dups (x:y:xs) = (x : x : y : dups xs)
