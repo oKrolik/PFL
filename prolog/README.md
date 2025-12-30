@@ -20,6 +20,18 @@ echo 'export PATH=$PATH:/usr/local/sicstus4.10.1/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
 
+Installation of rl_wrap may be required for command line editing features:
+
+```bash
+sudo apt-get install rlwrap
+```
+
+Start rlwrap with SICStus Prolog:
+
+```bash
+rlwrap sicstus
+```
+
 ## Quick Prolog Tutorial
 
 ### What is Prolog?
