@@ -304,3 +304,151 @@ run_example(_).
 % ===================================================================
 %% Extra
 % ===================================================================
+
+%% ------------------------------------------------------------------
+%% count_solutions(+Constraints, -Count):
+%% Conta quantas configuracoes do tabuleiro satisfazem todas as
+%% constraints exactamente (pontuacao zero).  Utiliza solve/2 para
+%% gerar todas as solucoes e length/2 para contar.
+%% ------------------------------------------------------------------
+count_solutions(Constraints, Count) :-
+    findall(Board, solve(Constraints, Board), Boards),
+    length(Boards, Count).
+
+
+
+
+%% ------------------------------------------------------------------
+%% solutions_best_score(+Constraints, -Boards):
+%% Devolve a lista de tabuleiros Boards que obtêm a melhor pontuacao
+%% (maior numero de constraints satisfeitas) para o conjunto
+%% Constraints.  Calcula primeiro a best_score/2 e depois recolhe
+%% todas as permutações que atingem esse score.
+%% ------------------------------------------------------------------
+solutions_best_score(Constraints, Boards) :-
+    best_score(Constraints, Score),
+    length(Constraints, K),
+    colors(Colors),
+    findall(Board,
+            (   perm(Colors, Board),
+                count_satisfied(Constraints, Board, C),
+                C - K =:= Score
+            ),
+            Boards).
+
+
+
+
+%% ------------------------------------------------------------------
+%% board_pretty_print(+Board):
+%% Imprime o tabuleiro Board com etiquetas A–F para facilitar a
+%% leitura.  Cada linha tera a forma "Posicao: Cor".
+%% ------------------------------------------------------------------
+%% position_labels(-Labels)
+%% Lista com as etiquetas das posicoes (A..F).
+%% ------------------------------------------------------------------
+%% board_pairs(+Labels,+Board,-Pairs)
+%% Associa cada posicao (A..F) com a cor correspondente em Board.
+%% ------------------------------------------------------------------
+board_pretty_print(Board) :-
+    position_labels(Labels),
+    board_pairs(Labels, Board, Pairs),
+    forall(member(Pos-Color, Pairs), (write(Pos), write(': '), write(Color), nl)).
+
+position_labels(['A','B','C','D','E','F']).
+
+board_pairs([], [], []).
+board_pairs([L|Ls], [C|Cs], [L-C|Rest]) :-
+    board_pairs(Ls, Cs, Rest).
+
+
+
+%% ------------------------------------------------------------------
+%% is_valid_board(+Board):
+%% Verifica se Board é uma configuracao valida: tem seis elementos,
+%% todas as cores pertencem ao conjunto permitido e nao ha repeticoes.
+%% ------------------------------------------------------------------
+is_valid_board(Board) :-
+    colors(Colors),
+    length(Board, 6),
+    forall(member(C, Board), member(C, Colors)),
+    sort(Board, Sorted),
+    length(Sorted, 6).
+
+
+
+%% ------------------------------------------------------------------
+%% position_of(+Color,+Board,-Pos):
+%% Devolve a posicao (indice 1-based) onde Color se encontra em Board.
+%% ------------------------------------------------------------------
+position_of(Color, Board, Pos) :-
+    position_index(Color, Board, Pos).
+
+
+
+%% ------------------------------------------------------------------
+%% neighbors_of(+Color,+Board,-Neighbors):
+%% Devolve uma lista com as cores adjacentes (à esquerda e à direita) ao
+%% Color em Board.
+%% ------------------------------------------------------------------
+%% adjacency(+Pos,-AdjPos)
+%% Define posicoes adjacentes numa lista de seis elementos.  Um
+%% indice adjacente é Pos-1 (se >=1) ou Pos+1 (se <=6).
+%% ------------------------------------------------------------------
+neighbors_of(Color, Board, Neighbors) :-
+    position_index(Color, Board, Pos),
+    findall(NColor,
+            ( adjacency(Pos, AdjPos),
+              nth1_custom(AdjPos, Board, NColor)
+            ),
+            Neighbors).
+
+adjacency(Pos, AdjPos) :-
+    AdjPos is Pos - 1,
+    AdjPos >= 1.
+adjacency(Pos, AdjPos) :-
+    AdjPos is Pos + 1,
+    AdjPos =< 6.
+
+
+
+%% ------------------------------------------------------------------
+%% edges_of(+Board,-Edge1,-Edge2):
+%% Devolve as cores que se encontram em cada uma das duas bordas do
+%% tabuleiro: Edge1 corresponde a posicoes A e B; Edge2 a D, E e F.
+%% ------------------------------------------------------------------
+edges_of(Board, Edge1, Edge2) :-
+    nth1_custom(1, Board, A),
+    nth1_custom(2, Board, B),
+    nth1_custom(4, Board, D),
+    nth1_custom(5, Board, E),
+    nth1_custom(6, Board, F),
+    Edge1 = [A,B],
+    Edge2 = [D,E,F].
+
+
+
+%% ------------------------------------------------------------------
+%% Negativas das restricoes basicas:
+%% not_next_to/3, not_one_space/3, not_across/3, not_same_edge/3
+%% Para cores iguais, as restricoes negativas sao ignoradas (satisfeitas).
+%% ------------------------------------------------------------------
+not_next_to(X, X, _).
+not_next_to(X, Y, Board) :-
+    X \= Y,
+    \+ next_to(X, Y, Board).
+
+not_one_space(X, X, _).
+not_one_space(X, Y, Board) :-
+    X \= Y,
+    \+ one_space(X, Y, Board).
+
+not_across(X, X, _).
+not_across(X, Y, Board) :-
+    X \= Y,
+    \+ across(X, Y, Board).
+
+not_same_edge(X, X, _).
+not_same_edge(X, Y, Board) :-
+    X \= Y,
+    \+ same_edge(X, Y, Board).
