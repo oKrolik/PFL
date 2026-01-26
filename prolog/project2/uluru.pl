@@ -452,3 +452,13 @@ not_same_edge(X, X, _).
 not_same_edge(X, Y, Board) :-
     X \= Y,
     \+ same_edge(X, Y, Board).
+
+
+
+%% ------------------------------------------------------------------
+%% forall(+Condition, +Action):
+%% Succeeds if for all solutions of Condition, Action is true.
+%% Custom implementation for environments lacking built-in forall/2.
+%% ------------------------------------------------------------------
+forall(Cond, Action) :-
+    \+ (Cond, \+ Action).

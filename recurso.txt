@@ -1,0 +1,903 @@
+// HASKEL
+
+    // FACT, BINOM, PASCAL
+
+        fact :: Integer -> Integer
+        fact n = product [1..n]
+
+        binom :: Integer -> Integer -> Integer
+        binom n k = fact n `div` (fact k * (fact (n-k)))
+
+        pascal :: Integer -> [[Integer]]
+        pascal x = [ [ binom n k | k <- [0..n] ] | n <- [0..x] ]
+
+    // BOOLEANS
+
+        myxor :: Bool -> Bool -> Bool
+        myxor True True = False
+        myxor False False = False
+        myxor True False = True
+        myxor False True = True
+
+        myand, myor :: [Bool] -> Bool
+        myand [] = True
+        myand (x:xs)
+            | x == False = False
+            | otherwise = myand xs
+
+        // myand :: [Bool] -> Bool
+        // myand [] = True
+        // myand (x:xs) = x && myand xs
+
+        myor [] = False
+        myor (x:xs)
+            | x == True = True
+            | otherwise = myor xs
+
+        // myor :: [Bool] -> Bool 
+        // myor [] = False
+        // myor (x:xs) = x || myor xs
+
+    // MY VERSIONS
+
+        myConcat :: [[a]] -> [a]
+        myConcat [] = []
+        myConcat (x:xs) = x ++ myConcat xs
+        // myconcat xs = foldr (++) [] xs
+
+        myReplicate :: Int -> a -> [a]
+        myReplicate 0 x = []
+        myReplicate n x | n > 0 = x:myReplicate (n-1) x
+
+        (!!!) :: [a] -> Int -> a
+        (!!!) (x:xs) 0 = x
+        (!!!) (x:xs) n | n > 0 = (!!!) xs (n-1)
+
+        myElem :: Eq a => a -> [a] -> Bool
+        myElem n [] = False
+        myElem y (x:xs) = (y == x) || myElem y xs
+
+        (+++) :: [a] -> [a] -> [a]
+        (+++) xs ys = foldr (:) ys xs
+
+    // FOLD
+
+        reversefl :: [a] -> [a]
+        reversefl xs = foldl (\acc x -> [x] ++ acc) [] xs
+
+        reversefr :: [a] -> [a]
+        reversefr xs = foldr (\x acc -> acc ++ [x]) [] xs
+
+    // IF-ELSE(OTHERWISE), PATTERNS AND GUARDS EXAMPLES
+
+        classifyIf, classifyGuards :: Int -> String
+        classifyGuards n
+            | n <= 9 = "failed"
+            | n <= 12 = "passed"
+            | n <= 15 = "good"
+            | n <= 18 = "very good"
+            | otherwise = "excellent"
+
+        classifyIf n =
+            if n <= 9 then "failed"
+            else if n <= 12 then "passed"
+            else if n <= 15 then "good"
+            else if n <= 18 then "very good"
+            else "excellent"
+
+        max3_a, min3_a :: Ord a => a -> a -> a -> a
+        max3_a x y z = if x>=y && x>=z then x 
+                    else if y>=z then y 
+                    else z
+        min3_a x y z = if x<=y && x<=z then x 
+                    else if y<=z then y
+                    else z
+
+        max3_b, min3_b :: Ord a => a -> a -> a -> a
+        max3_b x y z = max x (max y z)
+        min3_b x y z = min x (min y z)
+
+        safetailGuards :: [a] -> [a]
+        safetailGuards xs
+            | null xs = []
+            | length xs == 1 = xs
+            | otherwise = tail xs
+
+        safetailIf :: [a] -> [a]
+        safetailIf xs = if null xs then []
+                        else if length xs == 1 then xs
+                        else tail xs
+
+        safetailPatterns :: [a] -> [a]
+        safetailPatterns [] = []
+        safetailPatterns [x] = [x]
+        safetailPatterns (x:xs) = xs
+
+        max3, min3 :: (Ord a, Num a) => a -> a -> a -> a
+        max3 x y z
+            | x>=y && x>=z = x
+            | y>=z = y 
+            | otherwise = z
+        min3 x y z
+            | x<=y && x<=z = x
+            | y<=z = y
+            | otherwise = z
+
+    // OUTRO
+
+        propDivs :: Integer -> [Integer]
+        propDivs n = [x | x <- [1..n-1], n `mod` x == 0]
+
+        perfects :: Integer -> [Integer]
+        perfects n = [x | x <- [1..n], sum (propDivs x) == x]
+
+        forte :: String -> Bool
+        forte str = length str >= 8 
+            && or [x >= 'A' && x <= 'Z' | x <- str]
+            && or [x >= 'a' && x <= 'z' | x <- str]
+            && or [x >= '0' && x <= '9' | x <- str]
+
+        intersperse :: a -> [a] -> [a]
+        intersperse _ [] = []
+        intersperse _ [x] = [x]
+        intersperse s (x:xs) = x : s : intersperse s xs
+
+
+        -- intersperse '-' "banana" == "b-a-n-a-n-a"
+        -- intersperse 0 [1,2,3] == [1,0,2,0,3]
+        -- intersperse 0 [1] == [1]
+        -- intersperse 0 []  == []
+
+        maxpos :: [Int] -> Int
+        maxpos [] = 0
+        maxpos (x:xs)
+            | x > next = x
+            | otherwise = next
+            where
+                next = maxpos xs
+
+        dups :: [a] -> [a]
+        dups [] = []
+        dups [x] = [x, x]
+        dups (x:y:xs) = (x : x : y : dups xs)
+
+        //dups :: [a] -> [a]
+        //dups xs = dupsAux xs True
+
+        //dupsAux :: [a] -> Bool -> [a]
+        //dupsAux [] _ = []
+        //dupsAux (x:xs) r
+        //  | r = x : x : dupsAux xs False
+        //  | otherwise = x : dupsAux xs True
+
+        transforma :: String -> String
+        transforma [] = []
+        transforma (x:xs)
+            | x == 'a' || x == 'e' || x == 'i' || x == 'o' || x == 'u' = x : 'p' : x : transforma xs
+            | otherwise = x : transforma xs
+
+        // REMOVE DUPLICATES
+        nub :: (Eq a) => [a] -> [a]
+        nub [] = []
+        nub (x:xs) = x : nub (filter (/= x) xs)
+
+        pyths :: Integer -> [(Integer,Integer,Integer)] 
+        pyths n = [(x,y,z) | x <- [1..n], y <- [1..n], z <- [1..n], x^2 + y^2 == z^2]
+
+        calcPi1,calcPi2 :: Int -> Double
+        calcPi1 n = sum (take n (zipWith (/) (cycle [4,-4]) [1,3..]))
+        calcPi2 n = 3.0 + sum (take n (zipWith (/) (cycle [4,-4]) [k * (k+1) * (k+2) | k <- [2,4..]]))
+
+        twinPrimes :: [(Integer,Integer)]
+        twinPrimes (x,y) = filter (\(x,y)->y==x+2) lst
+            where lst = zip primes (tail primes)
+
+    // TEORIA
+
+        1.6 Match each of the expressions in the left hand side with its admissable
+        type on the right hand sides.
+
+        (a) (‘a’,‘2’)                       → (3) (Char,Char)
+        (b) (‘b’,1)                         → (4) (Char,Int)
+        (c) [‘a’,‘b’,‘c’]                   → (2) [Char]
+        (d) 1+2 == 4                        → (1) Bool
+        (e) not                             → (8) Bool -> Bool
+        (f) sqrt                            → (7) Float -> Float
+        (g) [sqrt, sin, cos]                → (10) [Float -> Float]
+        (h) [tail, init, reverse]           → (9) [[a] -> [a]]
+        (i) ([False,True],[True,False])     → (6) ([Bool],[Bool])
+        (j) [(False,True),(True,False)]     → (5) [(Bool,Bool)]
+
+        1.7 Mark all the following expressions that have a type error.
+        (a) 1 + 1.5
+        (b) 1 + False               -- Cannot add Int and Bool
+        (c) ’a’ + ’b’               -- Cannot add Chars
+        (d) ’a’ ++ ’b’              -- ++ expects [Char], not Char
+        (e) "a" ++ "b"
+        (f) "1+2" == "3"
+        (g) 1+2 == "3"              -- Cannot compare Int and String
+        (h) show (1+2) == "3"
+        (i) ’a’ < ’b’
+        (j) ’a’ < "ab"              -- Cannot compare Char and String
+        (k) (1 <= 2) <= 3           -- Cannot compare Bool and Int
+        (l) (1 <= 2) < (3 <= 4)
+        (m) head [1,2]
+        (n) head (1,2)              -- head expects a list, not a tuple
+        (o) tail "abc"
+
+        1.8 Determine the most general type for each of the following definitions. You
+        should include type class restrictions for any overloaded operations.
+
+        (a) second xs = head (tail xs)
+            second :: [a] -> a
+
+        (b) swap (x,y) = (y,x)
+            swap :: (a, b) -> (b, a)
+
+        (c) pair x = (x,x)
+            pair :: a -> (a, a)
+
+        (d) double x = 2*x
+            double :: Num a => a -> a
+
+        (e) half x = x/2
+            half :: Fractional a => a -> a
+
+        (f) average x y = (x+y)/2
+            average :: Fractional a => a -> a -> a
+
+        (g) isLower x = x >= 'a' && x <= 'z'
+            isLower :: Char -> Bool
+
+        (h) inRange x lo hi = x >= lo && x <= hi
+            inRange :: Ord a => a -> a -> a -> Bool
+
+        (i) isPalindrome xs = xs == reverse xs
+            isPalindrome :: Eq a => [a] -> Bool
+
+        (j) twice f x = f (f x)
+            twice :: (a -> a) -> a -> a
+
+        Qual o resultado de executar o seguinte código?
+        [(x,y) | x <- "abc", y <- [1,2]]
+        d. [('a',1), ('a',2), ('b',1), ('b',2), ('c',1), ('c',2)]
+
+        Qual dos tipos é válido para a seguinte expressão?
+        (map (>0))
+        a. [Int] -> [Bool]
+
+        Qual o tipo inferido pelo ghci para a seguinte função?
+        last [x] = x
+        last (x:xs) = last xs
+        b. [a] -> a
+
+        Qual o resultado de executar o seguinte código?
+        foldr (+) 7 [1,2,3]
+        d. 13 
+
+        Considere as três afirmações seguintes sobre as diferenças entre “type” e “data”:
+        A - Apenas “data” permite definições recursivas de tipos.
+        B - Apenas “data” permite definições usando variáveis de tipo (type variables).
+        C - Apenas “data” define novos padrões para pattern matching.
+        Qual/Quais destas afirmações estão corretas?
+        d. Apenas A e C 
+
+        Qual dos tipos é válido para a seguinte expressão?
+        head [[1], [2,3], [4,5,6]]
+        a. [Int]
+
+        Qual o resultado de executar o seguinte código?
+        tail (reverse [1,2,3])
+        b. [2,1]
+
+        Qual o resultado de executar o seguinte código?
+        [(x,y) | (x,y) <- [(1,2),(2,3)], x*y==6]
+        a. [(2,3)]
+
+        Qual o resultado de executar o seguinte código?
+        cycle (cycle [1,2,3])
+        Nota: cycle é uma função do Prelúdio-padrão que produz uma lista infinita em que a lista de input é repetida um número infinito de vezes.
+        Exemplo:
+        cycle [1,2,3] = [1,2,3,1,2,3, …]
+        c. [1,2,3,1,2,3, …]
+
+        Qual o resultado de executar o seguinte código?
+        head (zip [1..10] (tail [1..10]))
+        d. (1,2)
+
+        Qual das seguintes alternativas define um tipo de árvores binárias com anotações apenas nos nós?
+        a. data Arv a = Folha | No a (Arv a) (Arv a) 
+
+        Qual o resultado de executar o seguinte código?
+        filter (/='a') "abba"
+        c. "bb"
+
+
+        f :: (a -> b -> c) -> b -> a -> c
+        f fun b a = fun a b
+
+        What is the type of the following function?
+        orderedPair (a, b)
+            | a <= b = (a, b)
+            | otherwise = (b, a)
+        b. (Ord a) => (a, a) -> (a, a) 
+
+        What is the result of the following expression?
+        (length . (filter (> 0))) [1, 2, -3, 4, -5]
+        c. 3 
+
+        What is the type of the following expression?
+        [(++) [], map (+1)]
+        e. (Num a) => [[a] -> [a]] 
+
+        What is the type of the following function?
+        fun (x, y, _) = (y, x, y)
+        fun (_, y, x) = (y, x, y)
+        c. (a, b, a) -> (b, a, b) 
+
+        What is the result of the following expression?
+        [(a, b) | a <- "abc", b <- [1, 2], a <= 'd']
+        b. [('a',1), ('a',2), ('b',1), ('b',2), ('c',1), ('c',2)]
+
+        What is the result of the following expression?
+        foldl (/) 200 [1, 2, 4]
+        c. 25.0 
+
+        Which of the following Prelude functions does NOT necessarily return a list?
+        e. (!!) 
+
+        Consider the three following statements about the "type" and "data" keywords.
+        A - "type" does not allow the use of type variables, unlike "data".
+        B - "type" does not allow recursive type definitions.
+        C - It is possible to define an instance of Eq using "data".
+        Which statements are correct?
+        a. Only B and C
+
+        Among the types Maybe, State and IO, which of them are monads?
+        a. Maybe, State and IO.
+
+        What is the correct type of the following function?
+        howdy name = putStrLn ("howdy " ++ name ++ "!")
+        a. String -> IO () 
+
+        Haskell has lazy evaluation, which allows for ...
+        d. certain computations with infinite data structures to be finite
+
+        Consider a dendrogram as a binary tree where each path leads to a string. Each non-leaf node of the dendrogram specifies the horizontal
+        distance from the father node to each of the two child nodes. A father node is always at an equal horizontal distance from both its children.
+        Example of a dendrogram:
+        e. data Dendrogram = Leaf String | Node Dendrogram Int Dendrogram
+
+        Consider the three following expressions:
+        a = [1 .. 100000] ++ (take 1000 [1 .. 100000])
+        b = (take 1000 [1 .. 100000]) ++ [1 .. 100000]
+        c = (takeWhile (>1000) [1 .. 100000]) ++ [1 .. 100000]
+        Order these expressions by the time needed to evaluate them, starting with the fastest one to compute:
+        d. c < b < a 
+
+        What is the result of this expression?
+        concat [[a,b] | (a,b) <- zip ['a' ..] "abcde"]
+        e. "aabbccddee"
+
+        What is the result of this expression?
+        zipWith (*) [1 ..] [3,1 .. -5]
+        a. [3,2,-3,-12,-25]
+
+        Which of these expressions has the following type?
+        (Eq a) => [a] -> Bool
+        e. (\l -> reverse l == l)
+
+        What is the type of function myFun?
+        myFun x y = (x / y) < 1
+        b. None of the other options.
+
+        Consider function f.
+        f [] = Just 1
+        f (h:t)
+            | h > 0 = case f t of Just d -> Just (h*d) _ -> Nothing
+            | otherwise = Nothing
+        Which of these sentences about function f is FALSE?
+        d. The evaluation of f [0 ..] leads to a result (without infinite recursion) of Just 0.
+
+        Which of the following Prelude functions is equivalent to mysteryFunc?
+        mysteryFunc = foldr (++) []
+        c. concat
+
+        What is the type of function fun?
+        fun f g x y = f (g x y) (f x x)
+        c. (a -> a -> a) -> (a -> b -> a) -> a -> b -> a
+
+        What is the result of this expression?
+        foldl (-) 2 (map ((+1).(*2)) [3,2,1])
+        a. 13
+
+        What does function g do?
+        g = gAux []
+        gAux a = do
+            x <- getChar
+            if (x == '\n')
+                then return a
+                else gAux (x:a)
+        d. Reads a whole line from the console and prints it in reverse order.
+
+        Which of the following types is NOT admissible for the following definition?
+        fun x y = (x+y)/2
+        b. Int -> Int -> Float
+
+        What is the most general type of the following definition?
+        foo x [] = ([], [])
+        foo x (y:ys)
+            | x < y = let (ys',ys'') = foo x ys
+                    in (x:ys', ys'')
+            | otherwise = ([], y:ys)
+
+        d. Ord a => a -> [a] -> ([a], [a])
+
+        List notation in Haskell is “syntactic sugar” for uses of the constructors : and [].
+        Which of the constructor expressions is equivalent to [[a],[b,c],[d]]?
+        d. (a:[]):(b:c:[]):(d:[]):[]
+
+        Which of the alternatives below is equivalent to the following definition using a list comprehension?
+        h y xs = [x*y | x<-xs, x/=y]
+        a. h y xs = map (*y) (filter (/=y) xs)
+
+        Consider the following recursive definition on lists:
+        f [] _ = 0
+        f (x:xs) (y:ys) = x*y + f xs ys
+        Which of the following sentences is always true?
+        b. f xs ys is defined when the length of ys is greater than or equal to the length of xs
+
+        Consider the following recursive definition:
+        g _ [] = []
+        g 0 xs = xs
+        g n (x:xs) | n>0 = (x+n) : g (n-1) xs
+        Which of the following sentences best explains what the above function computes?
+        b. g n xs adds numbers n, n - 1,... 1 to the first elements of the list xs
+
+        Consider the function splitString :: String -> [String], that breaks a string into a lists of tokens, separated by spaces. Which of the following expressions gives a function from a string to the list of tokens with more than 3 characters?
+        c. filter ((>3).length) . splitString
+
+        Which of the following definitions using foldr is equivalent to the definition below?
+        p xs = (sum xs, length xs)
+        c. p = foldr (\x (s,n) -> (s+x,n+1)) (0,0)
+
+        Which of the alternatives corresponds to the computation expressed by the following fold?
+        foldl (\x y -> 2+x+y) 0 [1,2,3]
+        a. 2+(2+(2+0+1)+2)+3
+
+        Which of the following expressions generates the terms of the following numerical series?
+        -1+(1/3)-(1/5)+(1/7)-(1/9)...
+        d. zipWith (/) (cycle [-1,1]) [1,3..]
+
+        Consider the infinite list fibs of Fibonacci numbers in increasing order given in lectures (the definition is omitted):
+        ghci> fibs
+        [0, 1, 1, 2, 3, 5, 8, 13, 21, ...
+        Which of the following expressions does NOT terminate when evaluated in GHCi?
+        a. length (filter (<1000) fibs)
+
+        Consider a definition of binary search trees presented in the lectures.
+
+        data Tree a = Empty | Node a (Tree a) (Tree a)
+        Which of the following expressions is a valid search tree, i.e., is ordered?
+        d. Node 13 (Node 7 Empty Empty) (Node 15 (Node 14 Empty Empty) Empty)
+
+        Consider a value of an algebraic data type for arithmetic expressions presented in the lectures.
+        Add (Num 1) (Mult (Num 2) (Num 3))
+        Which of the following declarations correctly defines the data type?
+        d. data Expr = Num Int | Add Expr Expr | Mult Expr Expr
+
+        Consider the following complete program. Which of the alternatives best describes the program behaviour?
+        main = do n <- action 0
+                print n
+        action acc = do
+            x <- getChar
+            if x=='\n' then
+                return acc
+            else
+                action (1+acc)
+
+        a. reads a line of characters and prints its length
+
+        Which alternative best describes the behaviour of the the IO action mistery n?
+        mistery n = seqn (tail (reverse (map print [1..n])))
+        where
+        seqn [] = return ()
+        seqn (act:acts) = do
+            act
+            seqn acts
+
+        b. prints the numbers n-1, n-2, ..., 1
+
+        Which of these sentences about typeclasses are TRUE?
+        (1) Every type that is an instance of Ord is also an instance of Eq
+        (2) The (/) operator is defined for types belonging to the Integral typeclass.
+        (3) Int is an instance of Eq, Ord and Num.
+        a. Only (1) and (3)
+
+    // MERGE
+
+        merge :: Ord a => [a] -> [a] -> (a -> a -> Bool) -> [a]
+        merge [] l _ = l
+        merge l [] _ = l
+        merge (x:xs) (y:ys) cmp
+            | cmp x y = x:(merge xs (y:ys) cmp)
+            | otherwise = y:(merge (x:xs) ys cmp)
+
+    // INSERT
+
+        insert :: Ord a => a -> Set a -> Set a
+        insert x Empty = Node x Empty Empty
+        insert x (Node y left right)
+        | x < y = Node y (insert x left) right
+        | x > y = Node y left (insert x right)
+        | otherwise = Node y left right
+
+        // insert :: Ord a => a -> [a] -> [a]
+        // insert x [] = [x]
+        // insert x (y:ys) | y>=x = x:y:ys
+        //                 | otherwise = y:insert x ys
+
+    // MEMBER
+
+        member :: Ord a => a -> Set a -> Bool
+        member x Empty = False
+        member x (Node y left right)
+            | x == y = True
+            | x < y = member x left
+            | otherwise = member x right
+
+    // SORT
+
+        sortByCond :: Ord a => [a] -> (a -> a -> Bool) -> [a]
+        sortByCond [] _ = []
+        sortByCond [x] _ = [x]
+        sortByCond l cmp = merge (sortByCond l1 cmp) (sortByCond l2 cmp) cmp
+            where (l1 ,l2) = splitAt (div (length l) 2) l
+
+        isort :: Ord a => [a] -> [a]
+        isort (x:xs) = insert x (isort xs)
+        isort [] = []
+
+    // MATRIX
+
+        type Vector = [Int]
+        type Matriz = [[Int]]
+        -- Nota: as matrizes são retangulares, ou seja, o comprimento de todas as sublistas é idêntico.
+
+        transposta :: Matriz -> Matriz
+        transposta [] = []
+        transposta m = [head x | x <- m] : transposta [tail x | x <- m, tail x /= []]
+
+        prodInterno :: Vector -> Vector -> Int
+        prodInterno [] [] = 0
+        prodInterno (x:xs) (y:ys) = x * y + prodInterno xs ys
+
+        prodMat :: Matriz -> Matriz -> Matriz
+        prodMat m1 m2 = prodMatAux m1 (transposta m2)
+        prodMatAux :: Matriz -> Matriz -> Matriz
+        prodMatAux [] [] = []
+        prodMatAux m1 m2 = [[prodInterno v1 v2 | v2 <- m2] | v1 <- m1]
+
+    // TREES - ARVORES
+
+        data Arv a = F | N a (Arv a) (Arv a)
+        deriving(Show)
+
+        alturas :: Arv a -> Arv Int
+        alturas F = F
+        alturas (N a a1 a2) = N (alturasAux (N a a1 a2)) (alturas a1) (alturas a2)
+
+        alturasAux :: Arv a -> Int
+        alturasAux F = 0
+        alturasAux (N a a1 a2) = 1 + max (alturasAux a1) (alturasAux a2)
+
+        equilibrada :: Arv a -> Bool
+        equilibrada F = True
+        equilibrada (N a a1 a2) = equilibradaAux (alturas (N a a1 a2))
+
+        equilibradaAux :: Arv Int -> Bool
+        equilibradaAux F = True
+        equilibradaAux (N a F F) = True
+        equilibradaAux (N a F (N b b1 b2)) = b == 1
+        equilibradaAux (N a (N b b1 b2) F) = b == 1
+        equilibradaAux (N a (N b b1 b2) (N c c1 c2)) = b == c && equilibradaAux (N b b1 b2) && equilibradaAux (N c c1 c2)
+
+    // ALT TREE - ALT ARVORES - SET
+
+        module Set (Set,
+                    empty, fromList,
+                    insert, member) where
+
+        import Data.List (sort)
+
+        data Set a
+        = Empty
+        | Node a (Set a) (Set a)
+        -- opaque type:
+        -- don't export the constructors
+        -- don't derive show
+
+        empty :: Set a
+        empty = Empty
+
+        fromList :: Ord a => [a] -> Set a
+        fromList xs = build (sort xs)
+        where
+            build [] = Empty
+            build xs = Node x (build xs') (build xs'')
+            where
+                k = length xs `div` 2
+                xs' = take k xs
+                x:xs''= drop k xs
+
+        treeMap :: (a -> b) -> Set a -> Set b
+        treeMap _ Empty = Empty
+        treeMap f (Node v l r) = Node (f v) (treeMap f l) (treeMap f r)
+
+    // CITY - CITIES
+
+        type Node = String   -- some city
+        type Dist = Int      -- some distance
+        type Edges = [(Node,Node,Dist)] -- directed connections
+
+
+        portugal :: Edges
+        portugal = [ ("Porto", "Aveiro", 76)
+                , ("Aveiro", "Coimbra", 63)
+                , ("Aveiro", "Leiria", 117)
+                , ("Coimbra", "Leiria", 76)
+                , ("Leiria", "Santarem", 83)
+                , ("Santarem", "Lisboa", 82)
+                ]
+
+        inverse :: Edges -> Edges
+        inverse edges = [(y,x,d) | (x,y,d)<-edges]
+
+        -- ghci> inverse [("A","B",10), ("C","D",15)]
+        -- [("B","A",10), ("D","C",15)]
+
+        newEdges :: Edges -> Edges
+        newEdges edges = [(x,z,d+d') | (x,y,d)<-edges, (y',z,d')<-edges, y'==y && x/=z]
+
+        -- ghci> newEdges [("A","B",10), ("B","C",15), ("C","D",20)]
+        -- [("A","C",25), ("B","D",35)]
+        -- ghci> newEdges [("A","B",10), ("B","A",15)]
+        -- []
+
+        pathDistance :: Edges -> [Node] -> Maybe Dist
+        pathDistance edges [] = Just 0
+        pathDistance edges (start:path) = aux start 0 path
+        where
+            aux v acc [] = Just acc
+            aux v acc (u:path) =
+            case [d | (x,y,d)<-edges, x==v && y==u] of
+                (d:_) -> aux u (acc+d) path
+                [] -> Nothing
+
+        -- ghci> pathDistance [("A","B",10),("A","D",20),("B","C",15)] ["A","B","C"]
+        -- Just 25
+        -- ghci> pathDistance [("A","B",10),("A","D",20),("B","C",15)] ["A","C"]
+        -- Nothing
+
+        shortest :: Edges -> Edges
+        shortest [] = []
+        shortest ((x,y,d):edges) = (x,y,d'):shortest edges'
+        where
+            d' = minimum (d : [d' | (a,b,d')<-edges, a==x && b==y])
+            edges' = [(a,b,d) | (a,b,d)<-edges, a/=x || b/=y]
+
+        -- ghci> shortest [("A","B",10), ("B","C",10), ("A","B",7), ("B","C",15)]
+        -- [("A","B",7), ("B","C",10)]
+
+    // ALT CITY - ALT CITIES
+
+        type City = String
+        type Path = [City]
+        type Distance = Int
+
+        type RoadMap = [(City,City,Distance)]
+
+        gTest1 :: RoadMap
+        gTest1 = [("0","1",10),("0","2",15),("0","3",20),("1","2",35),("1","3",25),("2","3",30)]
+
+        gTest2 :: RoadMap -- unconnected graph
+        gTest2 = [("0","1",4),("2","3",2)]
+
+        adjacent  RoadMap  City -> [(City,Distance)]
+        adjacent roadMap city = [(dest,dist) | (orig,dest,dist) <- roadMap, orig == city] ++ [(orig,dist) | (orig,dest,dist) <- roadMap, dest == city]
+
+        -- ghci> adjacent gTest1 "0"
+        -- [("1",10),("2",15),("3",20)]
+        -- ghci> adjacent gTest2 "0"
+        -- [("1",4)]
+
+        dfs::RoadMap ->  City -> [City] -> [City] -> [City]
+        dfs _ _ visited [] = visited
+        dfs roadMap city visited (top:stackTail)
+            | top `elem` visited = dfs roadMap
+        city visited stackTail
+            | otherwise = dfs roadMap city (top : visited) (adjs ++ stackTail)
+            where
+                adjs :: [City]
+                adjs = map fst $ adjacent roadMap top
+
+        areConnected::RoadMap -> City -> City -> Bool
+        areConnected roadMap start end = end `elem` dfs roadMap start [] [start]
+
+        -- ghci> areConnected gTest1 "0" "3"
+        -- True
+        -- ghci> areConnected gTest2 "0" "3"
+        -- False
+
+    // SOCCER - FUTEBOL - LEAGUES
+
+        type Match = ((String, String), (Int, Int))
+        type MatchDay = [Match]
+        type League = [MatchDay]
+
+        myLeague :: League
+        myLeague = [[(("Porto","Sporting"),(2,2)),(("Benfica","Vitoria SC"),(4,0))],[(("Porto","Benfica"),(5,0)),(("Vitoria SC","Sporting"),(3,2))],[(("Vitoria SC","Porto"),(1,2)),(("Sporting","Benfica"),(2,1))]]
+
+        winner  Match  String
+        winner ((home, away), (hScore, aScore))
+            | hScore > aScore = home
+            | hScore < aScore = away
+            | otherwise = "draw"
+
+        participatesIn  String  Match  Bool
+        participatesIn team ((home, away), _) = team == home || team == away
+
+        matchDayScore  String  MatchDay -> Int
+        matchDayScore team []  0
+        matchDayScore team (match:subDay)
+            | not $ team `participatesIn` match =
+        matchDayScore team subDay
+            | winTeam == team  3
+            | winTeam == "draw"  1
+            | otherwise  0
+        where
+            winTeam  String
+            winTeam = winner match
+
+        leagueScore :: String -> League -> Int
+        leagueScore t = foldr (\d acc -> matchDayScore t d + acc) 0
+
+        getTeams  League -> [String]
+        getTeams league = nub $ [home | day <- league, ((home, _), _) <- day] ++ [away | day <- league, ((_, away), _) <day]
+
+        leagueScores  League -> [(String,Int)]
+        leagueScores league = [(team, leagueScore team league) | team <- getTeams league]
+
+        compTeams :: (String,Int) -> (String,Int) -> Bool
+        compTeams (team1, score1) (team2, score2)  (-score1, team1)  (-score2, team2)
+
+        ranking:: League -> [(String,Int)]
+        ranking league = sortByCond
+        (leagueScores league) compTeams
+
+        numMatchDaysWithDraws :: League -> Int
+        numMatchDaysWithDraws league = length [() | matchDay <- league, match <- matchDay, winner match == "Draw"]
+
+
+        -- Lista das equipas que ganharam por muito (+3 gols de vantagens)
+        -- [(1, ["Porto"]), (2, ["Porto", "Benfica"]), ...]
+        bigWins :: League -> [(Int, [String])]
+        bigWins league = [(i, [winner m | m@((t1, t2), (s1, s2)) <- matchDay, abs (s1 - s2) >= 3]) | (i, matchDay) <- zip [1..] league]
+
+    // ZOO - ANIMALS
+
+        type Species = (String, Int)
+        type Zoo = [Species]
+
+        isEndangered :: Species -> Bool
+        isEndangered (name, count)
+            | count <= 100 = True
+            | otherwise = False
+
+        updateSpecies :: Species -> Int -> Species
+        updateSpecies (name, oldCount) newCount = (name, newCount)
+
+        filterSpecies :: Zoo -> (Species -> Bool) -> Zoo
+        filterSpecies [] _ = []
+        filterSpecies (animal:animals) function = if(function animal) then ([animal] ++ next) else next
+            where next = filterSpecies animals 
+
+        countAnimals :: Zoo -> Int
+        countAnimals animals = sum(map (\(name,count) -> count) animals)
+
+        substring :: (Integral a) => String -> a -> a -> String
+        substring xs start end = take (fromIntegral end+1) (drop (fromIntegral start) xs) 
+
+        hasSubstr :: String -> String -> Bool
+        hasSubstr xs str = hasSubstrHelper xs str str
+        hasSubstrHelper :: String -> String -> String -> Bool
+        hasSubstrHelper _ [] _ = True
+
+        getAnimalName :: Species -> String
+        getAnimalName (animal, count) = animal
+        sortSpeciesWithSubstr :: Zoo -> String -> (Zoo, Zoo)
+        sortSpeciesWithSubstr animals str = (animalHasSubstr animals str, notAnimalHasSubstr animals str)
+
+        // The rabbit population of the zoo increases every year. In year 0, there were 2 rabbits, while in year 1 there were 3 rabbits. In the following
+        // years, the number of rabbits corresponds to the sum of the rabbit population of the two previous years
+
+        rabbits :: (Integral a) => [a]
+        rabbits = rabbitHelper [2,3]
+        rabbitHelper :: (Integral a) => [a] -> [a]
+        rabbitHelper (xs) = rabbitHelper (xs ++ [(xs !! (length(xs) - 1)) + (xs !! (length(xs)-2))])
+
+        rabbitYears :: (Integral a) => a -> Int
+        rabbitYears year = length ([y | y<-(take (fromIntegral year) rabbits), y<year])
+
+    // DENDOGRAM
+
+        myDendro :: Dendrogram
+        myDendro = Node (Node (Leaf "dog") 3 (Leaf "cat")) 5 (Leaf "octopus")
+
+        dendroWidth :: Dendrogram -> Int
+        dendroWidth (Leaf str) = 0
+        dendroWidth (Node left x right) = x*2 + div (max (dendroWidth left) (dendroWidth right)) 2
+
+        dendroInBounds :: Dendrogram -> Int -> [String]
+        dendroInBounds _ 1 = []
+        dendroInBounds (Leaf str) _ = [str]
+        dendroInBounds (Node left x right) limit = (dendroInBounds left (limit-1)) ++ (dendroInBounds right (limit-1)) 
+
+    // VARS
+
+        type VarName = Char
+
+        data Prop = Const Bool
+                | Variable VarName
+                | Not Prop
+                | And Prop Prop
+                | Imply Prop Prop
+                deriving Show
+
+        rename :: [(VarName,VarName)] -> Prop -> Prop
+        rename _   (Const b) = Const b
+        rename ren (Variable x) = case lookup x ren of
+                                Just y -> Variable y
+                                Nothing -> Variable x
+        rename ren (Not p) = Not (rename ren p)
+        rename ren (And p q) = And (rename ren p) (rename ren q) 
+        rename ren (Imply p q) = Imply (rename ren p) (rename ren q)
+
+        -- ghci> rename [('a','x'),('b','y')] (And (Variable 'a') (Variable 'b'))
+        -- And (Variable 'x') (Variable 'y')
+        -- ghci> rename [('a','b'),('b','a')] (And (Variable 'a') (Variable 'b'))
+        -- And (Variable 'b') (Variable 'a')
+        -- ghci> rename [('a','x')] (And (Variable 'a') (Variable 'b'))
+        -- And (Variable 'x') (Variable 'b')
+
+        nubBy :: (a -> a -> Bool) -> [a] -> [a]
+        nubBy eq [] = []
+        nubBy eq (x:xs) = x : nubBy eq [x' | x'<-xs, not (eq x x')]
+
+        -- ghci> nubBy (\(a,_) (c,_) -> a == c) [(3,3),(1,2),(3,1)]
+        -- [(3,3),(1,2)]
+        -- ghci> nubBy (==) "AbaaBCc"
+        -- "AbaBCc"
+
+        normalize :: Prop -> Prop
+        normalize p = rename ((flip zip ['a' ..] . findUniqueNames) p) p
+        where
+            findUniqueNames = nubBy (==) . vars
+
+        vars :: Prop -> [VarName]
+        vars (Const _)  = []
+        vars (Variable x) = [x]
+        vars (Not p)    = vars p
+        vars (And p q) = vars p ++ vars q
+        vars (Imply p q) = vars p ++ vars q
+
+        -- ghci> vars (And (Variable 'a') (Variable 'b'))
+        -- "ab"
+        -- ghci> vars (Imply (Variable 'x') (Variable 'x'))
+        -- "xx"
+        -- ghci> normalize (And (Variable 'p') (Variable 'r'))
+        -- And (Variable 'a') (Variable 'b')
+        -- ghci> normalize (Imply (Variable 'x') (Variable 'x'))
+        -- Imply (Variable 'a') (Variable 'a')
+
+// PROLOG
