@@ -60,6 +60,23 @@
         (+++) :: [a] -> [a] -> [a]
         (+++) xs ys = foldr (:) ys xs
 
+        funcX = foldl (\acc _ -> pred acc) 0
+        //funcX ls = funcXAux 0 ls
+        //    where
+        //        funcXAux acc [] = acc
+        //        funcXAux acc (_:xs) = funcXAux (pred acc) xs
+
+        evenPos :: Eq a => [a] -> [a] -> [(a,a)]
+        evenPos xs ys = [(x,y) | ((x,y),i) <- zip (zip xs ys) [0..], even i, x /= y]
+
+        Considere a seguinte série definida recursivamente da seguinte forma:
+        a_0 = 0
+        a_1 = 1
+        a_n = (3 ∗ a_(n−1)) − 2 ∗ a_(n−2) if n > 1
+        Defina a lista infinita list contendo todos os termos da série:
+        list :: [Integer]
+        list = 0 : 1 : zipWith (\a1 a2 -> 3 * a1 - 2 * a2) (tail list) list
+
     // FOLD
 
         reversefl :: [a] -> [a]
@@ -142,7 +159,6 @@
         intersperse _ [x] = [x]
         intersperse s (x:xs) = x : s : intersperse s xs
 
-
         -- intersperse '-' "banana" == "b-a-n-a-n-a"
         -- intersperse 0 [1,2,3] == [1,0,2,0,3]
         -- intersperse 0 [1] == [1]
@@ -153,22 +169,16 @@
         maxpos (x:xs)
             | x > next = x
             | otherwise = next
-            where
-                next = maxpos xs
+            where next = maxpos xs
 
         dups :: [a] -> [a]
-        dups [] = []
-        dups [x] = [x, x]
-        dups (x:y:xs) = (x : x : y : dups xs)
+        dups xs = dupsAux xs True
 
-        //dups :: [a] -> [a]
-        //dups xs = dupsAux xs True
-
-        //dupsAux :: [a] -> Bool -> [a]
-        //dupsAux [] _ = []
-        //dupsAux (x:xs) r
-        //  | r = x : x : dupsAux xs False
-        //  | otherwise = x : dupsAux xs True
+        dupsAux :: [a] -> Bool -> [a]
+        dupsAux [] _ = []
+        dupsAux (x:xs) r
+          | r = x : x : dupsAux xs False
+          | otherwise = x : dupsAux xs True
 
         transforma :: String -> String
         transforma [] = []
@@ -180,6 +190,11 @@
         nub :: (Eq a) => [a] -> [a]
         nub [] = []
         nub (x:xs) = x : nub (filter (/= x) xs)
+
+        -- Equal to nub, alias to prevent name collisions (LEAGUES)
+        nub2 :: (Eq a) => [a] -> [a]
+        nub2 [] = []
+        nub2 (x:xs) = x : nub2 (filter (/= x) xs)
 
         pyths :: Integer -> [(Integer,Integer,Integer)] 
         pyths n = [(x,y,z) | x <- [1..n], y <- [1..n], z <- [1..n], x^2 + y^2 == z^2]
@@ -296,8 +311,6 @@
 
         Qual o resultado de executar o seguinte código?
         cycle (cycle [1,2,3])
-        Nota: cycle é uma função do Prelúdio-padrão que produz uma lista infinita em que a lista de input é repetida um número infinito de vezes.
-        Exemplo:
         cycle [1,2,3] = [1,2,3,1,2,3, …]
         c. [1,2,3,1,2,3, …]
 
@@ -306,12 +319,11 @@
         d. (1,2)
 
         Qual das seguintes alternativas define um tipo de árvores binárias com anotações apenas nos nós?
-        a. data Arv a = Folha | No a (Arv a) (Arv a) 
+        a. data Arv a = Folha | No a (Arv a) (Arv a)
 
         Qual o resultado de executar o seguinte código?
         filter (/='a') "abba"
         c. "bb"
-
 
         f :: (a -> b -> c) -> b -> a -> c
         f fun b a = fun a b
@@ -409,7 +421,7 @@
 
         What is the result of this expression?
         foldl (-) 2 (map ((+1).(*2)) [3,2,1])
-        a. 13
+        a. -13
 
         What does function g do?
         g = gAux []
@@ -430,7 +442,6 @@
             | x < y = let (ys',ys'') = foo x ys
                     in (x:ys', ys'')
             | otherwise = ([], y:ys)
-
         d. Ord a => a -> [a] -> ([a], [a])
 
         List notation in Haskell is “syntactic sugar” for uses of the constructors : and [].
@@ -471,12 +482,11 @@
 
         Consider the infinite list fibs of Fibonacci numbers in increasing order given in lectures (the definition is omitted):
         ghci> fibs
-        [0, 1, 1, 2, 3, 5, 8, 13, 21, ...
+        [0, 1, 1, 2, 3, 5, 8, 13, 21, ...]
         Which of the following expressions does NOT terminate when evaluated in GHCi?
         a. length (filter (<1000) fibs)
 
         Consider a definition of binary search trees presented in the lectures.
-
         data Tree a = Empty | Node a (Tree a) (Tree a)
         Which of the following expressions is a valid search tree, i.e., is ordered?
         d. Node 13 (Node 7 Empty Empty) (Node 15 (Node 14 Empty Empty) Empty)
@@ -495,7 +505,6 @@
                 return acc
             else
                 action (1+acc)
-
         a. reads a line of characters and prints its length
 
         Which alternative best describes the behaviour of the the IO action mistery n?
@@ -505,7 +514,6 @@
         seqn (act:acts) = do
             act
             seqn acts
-
         b. prints the numbers n-1, n-2, ..., 1
 
         Which of these sentences about typeclasses are TRUE?
@@ -513,6 +521,15 @@
         (2) The (/) operator is defined for types belonging to the Integral typeclass.
         (3) Int is an instance of Eq, Ord and Num.
         a. Only (1) and (3)
+
+        Qual das seguintes afirmações sobre typeclasses está errada?
+        b. Eq é uma subclasse de Ord.
+
+        Indique um tipo possível para a seguinte expressão:
+        [ (n, x, x !! n) | n <- ls]
+        c. [(Int, [Int], Int)]
+
+
 
     // MERGE
 
@@ -636,9 +653,9 @@
 
     // CITY - CITIES
 
-        type Node = String   -- some city
-        type Dist = Int      -- some distance
-        type Edges = [(Node,Node,Dist)] -- directed connections
+        type Node = String
+        type Dist = Int
+        type Edges = [(Node,Node,Dist)]
 
 
         portugal :: Edges
@@ -714,8 +731,7 @@
         dfs::RoadMap ->  City -> [City] -> [City] -> [City]
         dfs _ _ visited [] = visited
         dfs roadMap city visited (top:stackTail)
-            | top `elem` visited = dfs roadMap
-        city visited stackTail
+            | top `elem` visited = dfs roadMap city visited stackTail
             | otherwise = dfs roadMap city (top : visited) (adjs ++ stackTail)
             where
                 adjs :: [City]
@@ -738,51 +754,66 @@
         myLeague :: League
         myLeague = [[(("Porto","Sporting"),(2,2)),(("Benfica","Vitoria SC"),(4,0))],[(("Porto","Benfica"),(5,0)),(("Vitoria SC","Sporting"),(3,2))],[(("Vitoria SC","Porto"),(1,2)),(("Sporting","Benfica"),(2,1))]]
 
-        winner  Match  String
+        winner :: Match -> String
         winner ((home, away), (hScore, aScore))
             | hScore > aScore = home
             | hScore < aScore = away
             | otherwise = "draw"
 
-        participatesIn  String  Match  Bool
+        participatesIn :: String -> Match -> Bool
         participatesIn team ((home, away), _) = team == home || team == away
 
-        matchDayScore  String  MatchDay -> Int
+        matchDayScore :: String -> MatchDay -> Int
         matchDayScore team []  0
         matchDayScore team (match:subDay)
-            | not $ team `participatesIn` match =
-        matchDayScore team subDay
-            | winTeam == team  3
-            | winTeam == "draw"  1
-            | otherwise  0
+            | not $ team `participatesIn` match = matchDayScore team subDay
+            | winTeam == team = 3
+            | winTeam == "draw" = 1
+            | otherwise = 0
         where
-            winTeam  String
+            winTeam :: String
             winTeam = winner match
 
         leagueScore :: String -> League -> Int
         leagueScore t = foldr (\d acc -> matchDayScore t d + acc) 0
 
-        getTeams  League -> [String]
-        getTeams league = nub $ [home | day <- league, ((home, _), _) <- day] ++ [away | day <- league, ((_, away), _) <day]
+        getTeams :: League -> [String]
+        getTeams league = nub $ [home | day <- league, ((home, _), _) <- day] ++ [away | day <- league, ((_, away), _) <- day]
 
-        leagueScores  League -> [(String,Int)]
+        leagueScores :: League -> [(String,Int)]
         leagueScores league = [(team, leagueScore team league) | team <- getTeams league]
 
         compTeams :: (String,Int) -> (String,Int) -> Bool
-        compTeams (team1, score1) (team2, score2)  (-score1, team1)  (-score2, team2)
+        compTeams (team1, score1) (team2, score2) = (-score1, team1) < (-score2, team2)
 
-        ranking:: League -> [(String,Int)]
-        ranking league = sortByCond
-        (leagueScores league) compTeams
+        ranking :: League -> [(String,Int)]
+        ranking league = sortByCond (leagueScores league) compTeams
 
         numMatchDaysWithDraws :: League -> Int
-        numMatchDaysWithDraws league = length [() | matchDay <- league, match <- matchDay, winner match == "Draw"]
+        numMatchDaysWithDraws = length . filter (any ((== "draw") . winner))
 
-
-        -- Lista das equipas que ganharam por muito (+3 gols de vantagens)
-        -- [(1, ["Porto"]), (2, ["Porto", "Benfica"]), ...]
         bigWins :: League -> [(Int, [String])]
-        bigWins league = [(i, [winner m | m@((t1, t2), (s1, s2)) <- matchDay, abs (s1 - s2) >= 3]) | (i, matchDay) <- zip [1..] league]
+        bigWins league = [(i, [winner match | match@(_ , (score1, score2)) <- matchDay, abs (score1 - score2) >= 3]) | (i, matchDay) <- zip [1..] league]
+
+        -- Equal to getTeams, alias to prevent name collisions
+        getTeams2 :: League -> [String]
+        getTeams2 :: league = nub2 $ [home | day <- league, ((home, _), _) <- day] ++ [away | day <- league, ((_, away), _) <- day]
+
+        getWins :: String -> League -> [(String,Int,Int)]
+        getWins team league = [(team, i, i) | (i, matchDay) <- zip [1..] league, match <- matchDay, winner match == team]
+
+        groupWins :: [(String,Int,Int)] -> [(String,Int,Int)]
+        groupWins [] = []
+        groupWins [win] = [win]
+        groupWins (win1@(team, i1, j1) : win2@(_, i2, j2) : wins)
+            | i2 <= j1 + 1 = groupWins $ (team, i1, j2) : wins
+            | otherwise = win1 : groupWins (win2 : wins)
+
+        filterWins :: [(String,Int,Int)] -> [(String,Int,Int)]
+        filterWins = filter (\(_,i,j) -> j - i >= 1)
+
+        winningStreaks  League -> [(String,Int,Int)]
+        winningStreaks league = concat [filterWins $ groupWins $ getWins team league | team <- getTeams2 league]
 
     // ZOO - ANIMALS
 
@@ -790,9 +821,7 @@
         type Zoo = [Species]
 
         isEndangered :: Species -> Bool
-        isEndangered (name, count)
-            | count <= 100 = True
-            | otherwise = False
+        isEndangered (name, count) = if(count <= 100) then True else False
 
         updateSpecies :: Species -> Int -> Species
         updateSpecies (name, oldCount) newCount = (name, newCount)
@@ -800,7 +829,7 @@
         filterSpecies :: Zoo -> (Species -> Bool) -> Zoo
         filterSpecies [] _ = []
         filterSpecies (animal:animals) function = if(function animal) then ([animal] ++ next) else next
-            where next = filterSpecies animals 
+            where next = filterSpecies animals function
 
         countAnimals :: Zoo -> Int
         countAnimals animals = sum(map (\(name,count) -> count) animals)
@@ -849,10 +878,18 @@
 
         data Prop = Const Bool
                 | Variable VarName
+                | Disj Prop Prop
                 | Not Prop
                 | And Prop Prop
                 | Imply Prop Prop
                 deriving Show
+
+        valor :: Prop -> Bool
+        valor (Const b) = b
+        valor (Variable _) = False
+        valor (Not p) = not (valor p)
+        valor (And p q) = valor p && valor q
+        valor (Imply p q) = not (valor p) || valor q
 
         rename :: [(VarName,VarName)] -> Prop -> Prop
         rename _   (Const b) = Const b
@@ -899,5 +936,55 @@
         -- And (Variable 'a') (Variable 'b')
         -- ghci> normalize (Imply (Variable 'x') (Variable 'x'))
         -- Imply (Variable 'a') (Variable 'a')
+
+    // MOVIES
+
+        type Movie = (String, [String])
+        myMovies :: [Movie]
+        myMovies = [("Titanic", ["Kate Winslet","Leonardo DiCaprio"]), ("Revolutionary Road",["Kate Winslet","Leonardo DiCaprio"]),("Elektra ",["Jennifer Garner"]), ("The Great Gatsby",["Leonardo DiCaprio"])]
+
+        delAll :: (Eq a) => a -> [a] -> [a]
+        delAll _ [] = []
+        delAll x (y:ys)
+            | x == y    = delAll x ys
+            | otherwise = y : delAll x ys
+
+        uniqueVals :: (Eq a) => [a] -> [a]
+        uniqueVals [] = []
+        uniqueVals (x:xs)
+            | x `elem` xs = uniqueVals xs
+            | otherwise = x : uniqueVals xs
+
+        findActors :: [Movie] -> String -> Maybe [String]
+        findActors [] _ = Nothing
+        findActors ((t,actors):ms) title
+            | t == title = Just actors
+            | otherwise  = findActors ms title
+
+        moviesWithActor :: [Movie] -> String -> [Movie]
+        moviesWithActor [] _ = []
+        moviesWithActor ((title, actors):ms) actor
+            | actor `elem` actors = (title, actors) : moviesWithActor ms actor
+            | otherwise = moviesWithActor ms actor
+
+
+        uniqueActors :: [Movie] -> [String]
+        uniqueActors [] = []
+        uniqueActors ((title, actors):ms) = uniqueActorsAux actors (uniqueActors ms)
+            where
+                uniqueActorsAux [] acc = acc
+                uniqueActorsAux (a:as) acc
+                    | a `elem` acc = uniqueActorsAux as acc
+                    | otherwise = a : uniqueActorsAux as acc
+
+        actorFrequencies :: [Movie] -> [(String, Int)]
+        actorFrequencies movies = [(actor, countMovies actor movies) | actor <- uniqueActors movies]
+            where
+                countMovies :: String -> [Movie] -> Int
+                countMovies _ [] = 0
+                countMovies actor ((_, actors):ms)
+                    | actor `elem` actors = 1 + countMovies actor ms
+                    | otherwise = countMovies actor ms
+
 
 // PROLOG
