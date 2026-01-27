@@ -1,3 +1,4 @@
+
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║                       HASKELL & PROLOG CHEAT-SHEET                            ║
 ║                         Complete Reference Guide                              ║
@@ -360,6 +361,83 @@ normalize :: Prop -> Prop
 normalize p = rename (zip uniqueVars ['a'..]) p
   where uniqueVars = nub (vars p)
 
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 14. ARITHMETIC EXPRESSIONS & EVALUATION                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+-- Expression data type for simple arithmetic
+-- Val wraps an integer value
+-- Add and Mul combine two expressions with + and *
+data Expr = Val Int
+          | Add Expr Expr
+          | Mul Expr Expr
+          deriving Show
+
+-- Evaluate an Expr to an Int.
+-- Evaluation is structural: recurse on sub‑expressions.
+-- Example: eval (Add (Val 2) (Mul (Val 3) (Val 4))) == 14
+eval :: Expr -> Int
+eval (Val n)     = n
+eval (Add e1 e2) = eval e1 + eval e2
+eval (Mul e1 e2) = eval e1 * eval e2
+
+-- Variants: to handle division or variables, extend Expr with more
+-- constructors and lift eval into a Maybe type to handle errors.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 15. LIST COMPREHENSIONS & SECTIONS                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+-- Translating list comprehensions into map/filter/concatMap:
+-- A comprehension [f x y | x <- xs, y <- ys, p x y] is equivalent to:
+-- concatMap (\x -> map (\y -> f x y) (filter (\y -> p x y) ys)) xs
+--
+-- Example: sum of squares of positive numbers
+-- sum [x^2 | x <- xs, x > 0] = sum (map (^2) (filter (>0) xs))
+--
+-- Pairs of elements where the first is even:
+-- [(x,y) | x <- xs, even x, y <- ys] =
+--   concatMap (\x -> map (\y -> (x,y)) ys) (filter even xs)
+--
+-- Sections (partial application) shorthand:
+-- (1+)    ≡ \x -> 1 + x        -- prefix constant
+-- (+1)    ≡ \x -> x + 1        -- postfix constant
+-- (*2)    ≡ \x -> x * 2
+-- (/3)    ≡ \x -> x / 3
+-- flip div 5 ≡ \x -> div x 5   -- sometimes flip is needed
+--
+-- You can use sections inside higher‑order functions:
+-- map (*3) [1..5]       == [3,6,9,12,15]
+-- filter (>=10) xs      -- keep elements ≥ 10
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 16. ADDITIONAL INFINITE SERIES & GENERATORS                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+-- cycle repeats a finite list indefinitely:
+-- take 8 (cycle [1,2,3]) == [1,2,3,1,2,3,1,2]
+--
+-- iterate applies a function repeatedly:
+-- iterate f x returns [x, f x, f (f x), ...]
+-- Example: powers of two
+powersOfTwo :: [Integer]
+powersOfTwo = iterate (*2) 1
+-- take 6 powersOfTwo == [1,2,4,8,16,32]
+
+-- Alternating sign series using cycle and zipWith
+-- Multiply each element by alternating +1 and -1
+alternatingSum :: Num a => [a] -> a
+alternatingSum xs = sum (zipWith (*) xs (cycle [1,-1]))
+
+-- Example sequence: 1,-3,5,-7,9,...
+oddAlternating :: [Integer]
+oddAlternating = zipWith (*) [1,3..] (cycle [1,-1])
+
+-- Using zipWith with iterate can define many recurrences
+-- Example: geometric progression a_n = r * a_(n-1)
+geo :: Num a => a -> a -> [a]
+geo a0 r = iterate (*r) a0
+
 
 ═══════════════════════════════════════════════════════════════════════════════
                               PROLOG SECTION
@@ -716,6 +794,140 @@ unifiable([H|T], Term, [H|R]) :-
     \+ \+ (H = Term),  % Test unification without binding
     unifiable(T, Term, R).
 unifiable([_|T], Term, R) :- unifiable(T, Term, R).
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 13. PERMUTATIONS & COLOR ANALYSIS                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+% Check if two lists represent the same multiset (permutation).
+% This uses msort/2 to sort both lists and then compares.
+is_permutation(L1, L2) :-
+    msort(L1, S), msort(L2, S).
+
+% Alternative using built‑in permutation/2 (generates permutations).
+same_elements(L1, L2) :-
+    permutation(L1, L2).  % succeeds if L2 is a permutation of L1
+
+% Count occurrences of an element in a list (counts duplicates).
+count_occ(_, [], 0).
+count_occ(X, [X|T], N) :-
+    count_occ(X, T, N1),
+    N is N1 + 1.
+count_occ(X, [_|T], N) :-
+    count_occ(X, T, N).
+
+% Example: count how many times a colour appears in a 3‑colour tuple.
+% count_colour(red,(C1,C2,C3),N) unifies N with the number of reds.
+count_colour(C, (C1,C2,C3), N) :-
+    findall(1, (nth1(_, [C1,C2,C3], C)), Ones),
+    length(Ones, N).
+
+% Determining birds with the same colour set:
+% Suppose we have facts colours(birdName,[ListOfColours]).
+% To check if Bird1 and Bird2 have the same colours (ignoring order):
+same_colours(Bird1, Bird2) :-
+    colours(Bird1, C1),
+    colours(Bird2, C2),
+    is_permutation(C1, C2).
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 14. MAX/MIN WITHOUT FINDALL                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+% When findall/bagof/setof is forbidden, accumulate maxima/minima by traversing
+% facts.  Example: given facts score(Name, Score), find the Name(s) with the
+% maximum Score.
+
+:- dynamic current_best/2.
+
+% max_scores(-Names, -Max) succeeds with Names the list of names having the
+% maximum score, and Max the maximum score.  It uses a dynamic predicate
+% current_best/2 to keep track of the best so far.
+max_scores(Names, Max) :-
+    retractall(current_best(_,_)),
+    asserta(current_best([], -1000000000)),
+    ( score(N, S),
+      update_max(N, S),
+      fail
+    ; current_best(Names, Max)
+    ).
+
+% Update the running maximum.  If a new score exceeds the current maximum,
+% replace the best names list.  If it ties, add the name to the list.
+update_max(Name, Score) :-
+    current_best(Names, Max),
+    ( Score > Max ->
+        retractall(current_best(_,_)),
+        asserta(current_best([Name], Score))
+    ; Score =:= Max ->
+        retractall(current_best(_,_)),
+        asserta(current_best([Name|Names], Max))
+    ; true
+    ).
+
+% A similar predicate can be written for minima by inverting the comparison.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 15. CONSTRAINED GRAPH SEARCH                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+% Searching for paths subject to extra constraints can be done by adding a
+% guard in the recursive step.  For example, coloured_route/3 below finds a
+% route from Start to End through birds where adjacent birds do not share
+% the same colour.  Facts edge/2 and colour/2 should be defined.
+
+% Wrapper to return a path in natural order.
+coloured_route(Start, End, Path) :-
+    coloured_route(Start, [Start], End, Rev),
+    reverse(Rev, Path).
+
+% Base case: reached the destination.
+coloured_route(End, Visited, End, Visited).
+
+% Recursive step: choose a neighbour Next such that it has not been visited
+% and its colour differs from the current bird.
+coloured_route(Current, Visited, End, Path) :-
+    edge(Current, Next),
+    \+ member(Next, Visited),
+    colour(Current, C1),
+    colour(Next, C2),
+    C1 \= C2,            % constraint: colours differ
+    coloured_route(Next, [Next|Visited], End, Path).
+
+% This pattern is similar to a DFS: maintain a list of visited nodes,
+% guard against revisiting, and include an extra constraint on edges.  By
+% changing the constraint or by using BFS instead of DFS you can adapt
+% this template to other problems.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 16. ADVANCED OPERATORS & CUTS                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+% Custom operators allow more readable domain‑specific syntax.  For example:
+% define a cost relation "costs" and a currency "euros".
+:- op(500, xfx, costs).
+:- op(400, xf, euros).
+
+% Now you can write a fact like:
+%   budget costs 20 euros.
+% which Prolog interprets as costs(budget,20) combined with euros(20).
+
+% CUT CLASSIFICATION:
+% A cut (!/0) prunes choice points.  A green cut is used only to remove
+% redundant searches and does not affect the set of solutions.  A red cut
+% changes the semantics by discarding alternative solutions.
+%
+% Example of a green cut:
+%   max(X,Y,X) :- X >= Y, !.
+%   max(_,Y,Y).
+% The cut prevents unnecessary testing of the second clause once the first
+% succeeds.
+%
+% Example of a red cut:
+%   grade(Score, pass) :- Score >= 10, !.
+%   grade(_, fail).
+% The cut here forces any score >= 10 to be classified as pass and suppresses
+% other possible clauses, potentially excluding valid alternatives.
 
 ═══════════════════════════════════════════════════════════════════════════════
                            EXAM THEORY QUICK REFERENCE
