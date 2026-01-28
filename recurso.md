@@ -1,15 +1,13 @@
-# HASKELL
-
+# Haskell
 ## 1. CORE LIST OPERATIONS
-
 ```hs
--- Basic operations
 myConcat :: [[a]] -> [a]
 myConcat = foldr (++) []
 
 myReplicate :: Int -> a -> [a]
-myReplicate n x | n > 0 = x : myReplicate (n-1) x
-            | otherwise = []
+myReplicate n x
+    | n > 0 = x : myReplicate (n-1) x
+    | otherwise = []
 
 (!!!) :: [a] -> Int -> a
 (x:xs) !!! 0 = x
@@ -27,7 +25,7 @@ nub :: Eq a => [a] -> [a]
 nub [] = []
 nub (x:xs) = x : nub (filter (/= x) xs)
 
--- Removes duplicate values from a list using the supplied argument function to check for equality
+-- Same but using the supplied argument function to check for equality
 nubBy :: (a -> a -> Bool) -> [a] -> [a]
 nubBy eq [] = []
 nubBy eq (x:xs) = x : nubBy eq [x' | x'<-xs, not (eq x x')]
@@ -43,9 +41,7 @@ reversefl, reversefr :: [a] -> [a]
 reversefl = foldl (flip (:)) []
 reversefr = foldr (\x acc -> acc ++ [x]) []
 ```
-
 ## 2. FOLD PATTERNS
-
 ```hs
 sumList = foldr (+) 0
 productList = foldr (*) 1
@@ -56,9 +52,7 @@ lengthList = foldr (\_ acc -> acc + 1) 0
 maximumList = foldr1 max
 minimumList = foldr1 min
 ```
-
 ## 3. SORTING & SEARCHING
-
 ```hs
 -- Insertion sort
 isort :: Ord a => [a] -> [a]
@@ -85,10 +79,8 @@ sortByCond [x] _ = [x]
 sortByCond l cmp = merge (sortByCond l1 cmp) (sortByCond l2 cmp) cmp
 where (l1, l2) = splitAt (length l `div` 2) l
 ```
-
 ## 4. HIGHER-ORDER FUNCTIONS
-
-```
+```hs
 -- Composition & application
 (.) :: (b -> c) -> (a -> b) -> a -> c
 (f . g) x = f (g x)
@@ -112,9 +104,7 @@ zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x:xs) (y:ys) = f x y : zipWith f xs ys
 ```
-
 ## 5. TREES & RECURSIVE DATA STRUCTURES
-
 ```hs
 data Arv a = F | N a (Arv a) (Arv a) deriving Show
 data Set a = Empty | Node a (Set a) (Set a)
@@ -136,9 +126,9 @@ member x (Node y left right)
     | otherwise = member x right
 
 -- Tree height
-altura :: Arv a -> Int
-altura F = 0
-altura (N _ l r) = 1 + max (altura l) (altura r)
+height :: Arv a -> Int
+height F = 0
+height (N _ l r) = 1 + max (height l) (height r)
 
 -- Tree map
 treeMap :: (a -> b) -> Set a -> Set b
@@ -149,14 +139,12 @@ treeMap f (Node v l r) = Node (f v) (treeMap f l) (treeMap f r)
 fromList :: Ord a => [a] -> Set a
 fromList xs = build (sort xs)
 where build [] = Empty
-        build xs = Node x (build xs') (build xs'')
-        where k = length xs `div` 2
-                xs' = take k xs
-                (x:xs'') = drop k xs
+    build xs = Node x (build xs') (build xs'')
+    where k = length xs `div` 2
+        xs' = take k xs
+        (x:xs'') = drop k xs
 ```
-
 ## 6. MATRICES & LINEAR ALGEBRA
-
 ```hs
 type Vector = [Int]
 type Matriz = [[Int]]
@@ -172,9 +160,7 @@ prodInterno (x:xs) (y:ys) = x * y + prodInterno xs ys
 prodMat :: Matriz -> Matriz -> Matriz
 prodMat m1 m2 = [[prodInterno v1 v2 | v2 <- transposta m2] | v1 <- m1]
 ```
-
 ## 7. COMBINATORICS & MATH
-
 ```hs
 fact :: Integer -> Integer
 fact n = product [1..n]
@@ -194,9 +180,7 @@ perfects n = [x | x <- [1..n], sum (propDivs x) == x]
 pyths :: Integer -> [(Integer,Integer,Integer)]
 pyths n = [(x,y,z) | x <- [1..n], y <- [1..n], z <- [1..n], x^2 + y^2 == z^2]
 ```
-
 ## 8. INFINITE LISTS & LAZY EVALUATION
-
 ```hs
 -- Fibonacci
 fibs :: [Integer]
@@ -220,20 +204,13 @@ calcPi1, calcPi2 :: Int -> Double
 calcPi1 n = sum (take n (zipWith (/) (cycle [4,-4]) [1,3..]))
 calcPi2 n = 3.0 + sum (take n (zipWith (/) (cycle [4,-4]) [k*(k+1)*(k+2) | k <- [2,4..]]))
 ```
-
 ## 9. STRING & CHAR OPERATIONS
-
 ```hs
 -- Password strength
 forte :: String -> Bool
-forte str = length str >= 8
-    && any (`elem` ['A'..'Z']) str
-    && any (`elem` ['a'..'z']) str
-    && any (`elem` ['0'..'9']) str
+forte str = length str >= 8 && any (`elem` ['A'..'Z']) str && any (`elem` ['a'..'z']) str && any (`elem` ['0'..'9']) str
 ```
-
 ## 10. TYPE CLASSES & TYPE INFERENCE
-
 ```hs
 -- Common type signatures
 second :: [a] -> a
@@ -256,9 +233,7 @@ twice :: (a -> a) -> a -> a
 -- - Only "data" defines new patterns for pattern matching
 -- - "data" can derive typeclasses like Eq, Show, etc.
 ```
-
 ## 11. MONADS & IO
-
 ```hs
 -- Maybe, State, IO are all monads
 -- IO type signature example:
@@ -275,9 +250,7 @@ readAndProcess = do
             putStrLn ("You said: " ++ x)
             readAndProcess
 ```
-
 ## 12. GRAPH ALGORITHMS
-
 ```hs
 type City = String
 type Distance = Int
@@ -324,9 +297,7 @@ where
     d' = minimum (d : [d' | (a,b,d')<-roadMap, a==x && b==y])
     roadMap' = [(a,b,d) | (a,b,d)<-roadMap, a/=x || b/=y]
 ```
-
 ## 13. PROPOSITIONAL LOGIC
-
 ```hs
 type VarName = Char
 
@@ -364,9 +335,7 @@ normalize :: Prop -> Prop
 normalize p = rename (zip uniqueVars ['a'..]) p
 where uniqueVars = nub (vars p)
 ```
-
 ## 14. ARITHMETIC EXPRESSIONS & EVALUATION
-
 ```hs
 -- Expression data type for simple arithmetic
 -- Val wraps an integer value
@@ -387,9 +356,7 @@ eval (Mul e1 e2) = eval e1 * eval e2
 -- Variants: to handle division or variables, extend Expr with more
 -- constructors and lift eval into a Maybe type to handle errors.
 ```
-
 ## 15. LIST COMPREHENSIONS & SECTIONS
-
 ```hs
 -- Translating list comprehensions into map/filter/concatMap:
 -- A comprehension [f x y | x <- xs, y <- ys, p x y] is equivalent to:
@@ -413,9 +380,7 @@ eval (Mul e1 e2) = eval e1 * eval e2
 -- map (*3) [1..5]       == [3,6,9,12,15]
 -- filter (>=10) xs      -- keep elements ≥ 10
 ```
-
 ## 16. ADDITIONAL INFINITE SERIES & GENERATORS
-
 ```hs
 -- cycle repeats a finite list indefinitely:
 -- take 8 (cycle [1,2,3]) == [1,2,3,1,2,3,1,2]
@@ -441,20 +406,8 @@ oddAlternating = zipWith (*) [1,3..] (cycle [1,-1])
 geo :: Num a => a -> a -> [a]
 geo a0 r = iterate (*r) a0
 ```
-
 ## 17. COMMON EXERCISE FUNCTIONS & UTILITY DEFINITIONS
-
 ```hs
--- Splitting a list into halves.  `leftHalf` returns the first half (floor n/2 elements) and
--- `rightHalf` returns the remaining.  When length is odd, the right half is longer.
-leftHalf, rightHalf :: [a] -> [a]
-leftHalf xs = take (length xs `div` 2) xs
-rightHalf xs = drop (length xs `div` 2) xs
-
--- The second element of a list.  Assumes the list has at least two elements.
-second :: [a] -> a
-second = head . tail
-
 -- Remove the last element (init) without using the Prelude `init`.
 -- Returns error on empty list.
 initList :: [a] -> [a]
@@ -465,25 +418,6 @@ initList (x:xs) = x : initList xs
 -- Drop the first and last elements, producing the "middle" of a list.
 middle :: [a] -> [a]
 middle = initList . tail
-
--- Check if a list reads the same forwards and backwards.
-isPalindromeList :: Eq a => [a] -> Bool
-isPalindromeList xs = xs == reverse xs
-
--- Triangle functions.  `checkTriangle` verifies the triangle inequality for sides a,b,c.
-checkTriangle :: (Ord a, Num a) => a -> a -> a -> Bool
-checkTriangle a b c = a + b > c && a + c > b && b + c > a
-
--- Compute the area of a triangle using Heron's formula s = (a+b+c)/2, A = sqrt(s(s−a)(s−b)(s−c)).
-triangleArea :: Floating a => a -> a -> a -> a
-triangleArea a b c =
-    let s = (a + b + c) / 2
-    in sqrt (s * (s - a) * (s - b) * (s - c))
-
--- Maximum and minimum of three values using associativity
-max3, min3 :: Ord a => a -> a -> a -> a
-max3 x y z = max x (max y z)
-min3 x y z = min x (min y z)
 
 -- Exclusive-or on booleans
 xor :: Bool -> Bool -> Bool
@@ -519,9 +453,7 @@ isPrime n
     | n <= 1    = False
     | otherwise = null [x | x <- [2..floor (sqrt (fromIntegral n))], n `mod` x == 0]
 ```
-
 ## 18. BINARY CONVERSIONS, GROUPING & HAMMING NUMBERS
-
 ```hs
 -- Convert a non‑negative integer to a list of bits (most significant bit first).
 toBits :: Integral a => a -> [Int]
@@ -533,14 +465,6 @@ where helper 0 = []
 -- Convert a list of bits back to an integer.  Assumes most significant bit first.
 fromBits :: [Int] -> Int
 fromBits = foldl (\acc bit -> acc * 2 + bit) 0
--- See folha3.pdf for binary conversion tasks.
-
--- Group consecutive equal elements into sublists.
-groupConsecutive :: Eq a => [a] -> [[a]]
-groupConsecutive [] = []
-groupConsecutive (x:xs) =
-    let (same,rest) = span (== x) xs
-    in (x:same) : groupConsecutive rest
 
 -- Intercalate a separator between sublists.
 intercalate :: a -> [[a]] -> [a]
@@ -563,45 +487,8 @@ where merge (x:xs) (y:ys)
             | x > y     = y : merge (x:xs) ys
             | otherwise = x : merge xs ys
 ```
-
 ## 19. CUSTOM DATA TYPES & LOGIC UTILITIES
-
 ```hs
-data List a = Empty | Cons a (List a) deriving (Show, Eq)
-
--- Convert custom List to built‑in list.
-toList :: List a -> [a]
-toList Empty = []
-toList (Cons x xs) = x : toList xs
-
--- Convert built‑in list to custom List.
-fromList :: [a] -> List a
-fromList [] = Empty
-fromList (x:xs) = Cons x (fromList xs)
-
--- Card types for suits and faces.
-data Suit = Spade | Heart | Diamond | Club deriving (Show, Eq, Ord, Enum, Bounded)
-data Face = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace deriving (Show, Eq, Ord, Enum, Bounded)
-data Card = Card { face :: Face, suit :: Suit } deriving (Show, Eq)
-
--- List of all 52 cards in a standard deck.
-allCards :: [Card]
-allCards = [Card f s | s <- [minBound .. maxBound], f <- [minBound .. maxBound]]
-
--- Compare cards lexicographically: suit first then face.
-compareCard :: Card -> Card -> Ordering
-compareCard (Card f1 s1) (Card f2 s2) = compare s1 s2 <> compare f1 f2
-
--- Size (number of nodes) of a Set implemented as a binary search tree.
-setSize :: Set a -> Int
-setSize Empty = 0
-setSize (Node _ l r) = 1 + setSize l + setSize r
-
--- Height (longest branch length) of a Set.
-setHeight :: Set a -> Int
-setHeight Empty = 0
-setHeight (Node _ l r) = 1 + max (setHeight l) (setHeight r)
-
 -- Extended propositional logic with disjunction.
 data Prop2 = Const2 Bool
         | Var VarName
@@ -653,11 +540,8 @@ satisfies :: Prop2 -> [Env]
 satisfies p = [ env | env <- envs vs, aval env p ]
 where vs = listVar p
 ```
-
 # PROLOG
-
 ## 1. BASIC RECURSION PATTERNS
-
 ```prolog
 % Factorial
 factorial(0, 1).
@@ -685,9 +569,7 @@ pow(X, Y, P) :- Y > 1, Y1 is Y - 1, pow(X, Y1, P1), P is X * P1.
 sum_rec(0, 0).
 sum_rec(N, S) :- N > 0, N1 is N - 1, sum_rec(N1, S1), S is N + S1.
 ```
-
 ## 2. LIST OPERATIONS
-
 ```prolog
 % List size
 list_size([], 0).
@@ -746,9 +628,7 @@ max_list([H|T], Max) :-
     max_list(T, M1),
     (H >= M1 -> Max = H ; Max = M1).
 ```
-
 ## 3. APPEND-BASED PATTERNS
-
 ```prolog
 % Append definition
 list_append([], L, L).
@@ -769,9 +649,7 @@ before(F, S, L) :- append(_, [F|L2], L), append(_, [S|_], L2).
 % Delete one occurrence
 list_del(L, X, R) :- append(Front, [X|Back], L), append(Front, Back, R).
 ```
-
 ## 4. HIGHER-ORDER PREDICATES
-
 ```prolog
 % Map (applies predicate to all elements)
 map(_, [], []).
@@ -795,9 +673,7 @@ fold(P, Acc0, [H|T], AccF) :-
     call(G),
     fold(P, Acc1, T, AccF).
 ```
-
 ## 5. FINDALL, BAGOF, SETOF
-
 ```prolog
 % findall(X, Goal, List) - always succeeds, returns [] if no solutions
 % bagof(X, Goal, List) - fails if no solutions, may return multiple lists
@@ -814,9 +690,7 @@ count_dishes_with_ingredient(Ingredient, N) :-
     findall(Dish, (dish(Dish, _, Ingredients), member(Ingredient-_, Ingredients)), Dishes),
     length(Dishes, N).
 ```
-
 ## 6. GRAPH SEARCH (DFS/BFS)
-
 ```prolog
 % DFS (with cycle detection)
 dfs(Goal, Goal, _, []).
@@ -845,9 +719,7 @@ connects(X, Visited, Y, Path) :-
     \+ member(Z, Visited),
     connects(Z, [Z|Visited], Y, Path).
 ```
-
 ## 7. DYNAMIC PREDICATES & ASSERT/RETRACT
-
 ```prolog
 % Memoized Fibonacci
 :- dynamic fib_memo/2.
@@ -868,9 +740,7 @@ update_unit_cost(Ingredient, NewCost) :-
     retractall(ingredient(Ingredient, _)),
     asserta(ingredient(Ingredient, NewCost)).
 ```
-
 ## 8. TREES IN PROLOG
-
 ```prolog
 % Tree structure: nil or t(Value, Left, Right)
 
@@ -898,9 +768,7 @@ tree_map(P, t(X, L, R), t(Y, NL, NR)) :-
     G =.. [P, X, Y], call(G),
     tree_map(P, L, NL), tree_map(P, R, NR).
 ```
-
 ## 9. META-PROGRAMMING
-
 ```prolog
 % Univ operator (=..)
 % Converts between term and list representation
@@ -921,9 +789,7 @@ test_second_uninstantiated(T) :-
     T =.. [_, _, X|_],
     var(X).
 ```
-
 ## 10. CUT & NEGATION
-
 ```prolog
 % Green cut (doesn't change semantics, only efficiency)
 max(X, Y, X) :- X >= Y, !.
@@ -940,9 +806,7 @@ min_list([H|T], M) :- min_list(T, M1), M is min(H, M1).
 not_member(_, []).
 not_member(X, [H|T]) :- X \= H, not_member(X, T).
 ```
-
 ## 11. OPERATORS
-
 ```prolog
 % Define custom operators:
 % :- op(Precedence, Type, Name).
@@ -961,30 +825,13 @@ not_member(X, [H|T]) :- X \= H, not_member(X, T).
 :- op(600, xf, pages).
 % Allows: 'The Firm' has 432 pages.
 ```
-
 ## 12. COMMON EXAM PATTERNS
-
 ```prolog
-% Family relationships
-parent(john, mary).
-parent(john, tom).
-
 siblings(X, Y) :- 
     parent(P, X), parent(P, Y), X \= Y.
 
 grandparent(X, Y) :- 
     parent(X, Z), parent(Z, Y).
-
-% Run-length encoding
-rle([], []).
-rle([H|T], [H-N|R]) :-
-    count_run(H, T, N, Rest),
-    rle(Rest, R).
-
-count_run(X, [X|T], N, Rest) :-
-    count_run(X, T, N1, Rest), N is N1 + 1.
-count_run(X, [Y|T], 1, [Y|T]) :- X \= Y.
-count_run(_, [], 1, []).
 
 % Pascal's triangle
 pascal(1, [[1]]).
@@ -1007,9 +854,7 @@ unifiable([H|T], Term, [H|R]) :-
     unifiable(T, Term, R).
 unifiable([_|T], Term, R) :- unifiable(T, Term, R).
 ```
-
 ## 13. PERMUTATIONS & COLOR ANALYSIS
-
 ```prolog
 % Check if two lists represent the same multiset (permutation).
 % This uses msort/2 to sort both lists and then compares.
@@ -1042,78 +887,7 @@ same_colours(Bird1, Bird2) :-
     colours(Bird2, C2),
     is_permutation(C1, C2).
 ```
-
-## 14. MAX/MIN WITHOUT FINDALL
-
-```prolog
-% When findall/bagof/setof is forbidden, accumulate maxima/minima by traversing
-% facts.  Example: given facts score(Name, Score), find the Name(s) with the
-% maximum Score.
-
-:- dynamic current_best/2.
-
-% max_scores(-Names, -Max) succeeds with Names the list of names having the
-% maximum score, and Max the maximum score.  It uses a dynamic predicate
-% current_best/2 to keep track of the best so far.
-max_scores(Names, Max) :-
-    retractall(current_best(_,_)),
-    asserta(current_best([], -1000000000)),
-    ( score(N, S),
-    update_max(N, S),
-    fail
-    ; current_best(Names, Max)
-    ).
-
-% Update the running maximum.  If a new score exceeds the current maximum,
-% replace the best names list.  If it ties, add the name to the list.
-update_max(Name, Score) :-
-    current_best(Names, Max),
-    ( Score > Max ->
-        retractall(current_best(_,_)),
-        asserta(current_best([Name], Score))
-    ; Score =:= Max ->
-        retractall(current_best(_,_)),
-        asserta(current_best([Name|Names], Max))
-    ; true
-    ).
-
-% A similar predicate can be written for minima by inverting the comparison.
-```
-
-## 15. CONSTRAINED GRAPH SEARCH
-
-```prolog
-% Searching for paths subject to extra constraints can be done by adding a
-% guard in the recursive step.  For example, coloured_route/3 below finds a
-% route from Start to End through birds where adjacent birds do not share
-% the same colour.  Facts edge/2 and colour/2 should be defined.
-
-% Wrapper to return a path in natural order.
-coloured_route(Start, End, Path) :-
-    coloured_route(Start, [Start], End, Rev),
-    reverse(Rev, Path).
-
-% Base case: reached the destination.
-coloured_route(End, Visited, End, Visited).
-
-% Recursive step: choose a neighbour Next such that it has not been visited
-% and its colour differs from the current bird.
-coloured_route(Current, Visited, End, Path) :-
-    edge(Current, Next),
-    \+ member(Next, Visited),
-    colour(Current, C1),
-    colour(Next, C2),
-    C1 \= C2,            % constraint: colours differ
-    coloured_route(Next, [Next|Visited], End, Path).
-
-% This pattern is similar to a DFS: maintain a list of visited nodes,
-% guard against revisiting, and include an extra constraint on edges.  By
-% changing the constraint or by using BFS instead of DFS you can adapt
-% this template to other problems.
-```
-
-## 16. ADVANCED OPERATORS & CUTS
-
+## 14. ADVANCED OPERATORS & CUTS
 ```prolog
 % Custom operators allow more readable domain‑specific syntax.  For example:
 % define a cost relation "costs" and a currency "euros".
@@ -1141,9 +915,7 @@ coloured_route(Current, Visited, End, Path) :-
 % The cut here forces any score >= 10 to be classified as pass and suppresses
 % other possible clauses, potentially excluding valid alternatives.
 ```
-
-## 17. LIST & UTILITY PREDICATES
-
+## 15. LIST & UTILITY PREDICATES
 ```prolog
 % Delete first occurrence of an element from a list.
 del_one(_, [], []) :- !.
@@ -1211,24 +983,8 @@ fib_seq(A, B, N, [A|Rest]) :-
     A =< N,
     C is A + B,
     fib_seq(B, C, N, Rest).
-
-% Run‑length encoding and decoding
-% Encoding
-rle([], []).
-rle([H|T], [H-N|R]) :-
-    count_run(H, T, N, Rest),
-    rle(Rest, R).
-
-% Decoding
-un_rle([], []).
-un_rle([X-N|T], R) :-
-    replicate_elem(N, X, Rep),
-    un_rle(T, Rest),
-    append(Rep, Rest, R).
 ```
-
-## 18. INPUT/OUTPUT & FORMATTED PRINTING
-
+## 16. INPUT/OUTPUT & FORMATTED PRINTING
 ```prolog
 % Print N copies of a character or atom.
 print_n(0, _) :- !.
@@ -1237,22 +993,6 @@ print_n(N, X) :-
     write(X),
     N1 is N - 1,
     print_n(N1, X).
-
-% Print a list of characters or atoms without newline.
-print_text([]).
-print_text([H|T]) :- write(H), print_text(T).
-
-% Print a banner around a list of characters (Text).
-print_banner(Text) :-
-    length(Text, Len),
-    Border is Len + 4,
-    print_n(Border, '*'), nl,
-    write('* '), print_text(Text), write(' *'), nl,
-    print_n(Border, '*'), nl.
-
-% Print multiple banners.
-print_multi_banner([]).
-print_multi_banner([S|Ss]) :- print_banner(S), print_multi_banner(Ss).
 
 % Print an ASCII Christmas tree of height N.
 oh_christmas_tree(N) :- oh_tree_rows(1, N).
@@ -1282,19 +1022,8 @@ print_list(L) :-
 % Print a matrix (list of lists) line by line.
 print_matrix([]).
 print_matrix([Row|Rest]) :- print_full_list(Row), print_matrix(Rest).
-
-% Print a matrix with row numbers starting from 1.
-print_numbered_matrix(Matrix) :- print_numbered_matrix(Matrix, 1).
-print_numbered_matrix([], _).
-print_numbered_matrix([Row|Rest], I) :-
-    write(I), write(': '),
-    print_full_list(Row),
-    I1 is I + 1,
-    print_numbered_matrix(Rest, I1).
 ```
-
-## 19. HIGHER‑ORDER & META‑PROGRAMMING PATTERNS
-
+## 17. HIGHER‑ORDER & META‑PROGRAMMING PATTERNS
 ```prolog
 % separate(Pred, List, Yes, No) splits List into elements for which Pred succeeds and those it fails.
 separate(_, [], [], []).
@@ -1345,9 +1074,7 @@ tree_value_at_level(t(_, L, R), N, Values) :-
     tree_value_at_level(R, N1, VR),
     append(VL, VR, Values).
 ```
-
 # EXAM THEORY QUICK REFERENCE
-
 ## HASKELL TYPE ERRORS:
 ```hs
 ✗ 1 + False          -- Can't add Int and Bool
@@ -1358,55 +1085,43 @@ tree_value_at_level(t(_, L, R), N, Values) :-
 ✗ (1 <= 2) <= 3      -- Can't compare Bool and Int
 ✗ head (1,2)         -- head needs list, not tuple
 ```
-
 ## TYPE vs DATA:
 - Only "data" allows recursive definitions
 - Only "data" creates new pattern matching constructors
 - Both allow type variables
-
 ## EVALUATION ORDER:
 - Lazy evaluation enables infinite data structures
 - `takeWhile (<1000) [1..]` terminates
 - `length (filter (<1000) fibs)` does NOT terminate (filter needs full evaluation)
-
 ## FOLD DIRECTION:
 - `foldr (+) 7 [1,2,3]` = 1 + (2 + (3 + 7)) = 13
 - `foldl (/) 200 [1,2,4]` = ((200 / 1) / 2) / 4 = 25.0
-
 ## TYPECLASSES:
 - Every Ord instance is also an Eq instance
 - (/) is in Fractional, not Integral
 - Int is instance of Eq, Ord, Num
-
 ## MONADS:
 - Maybe, State, IO are all monads
 - IO () means IO action returning unit
-
 ## PROLOG FACTS:
 - findall always succeeds (returns [] if none)
 - bagof/setof fail if no solutions
 - setof returns sorted, unique results
 - Use `Y^` to existentially quantify variables: `setof(X, Y^goal(X,Y), L)`
-
 ## CUT COLORS:
 - Green cut: doesn't change semantics (only efficiency)
 - Red cut: changes semantics (removes choice points that affect correctness)
-
 ## NEGATION:
 - `\+` Goal succeeds if Goal fails (negation as failure)
 - Not the same as logical negation!
-
 # USEFUL PATTERNS
-
 ## HASKELL COMMON IDIOMS:
 - `filter p . map f` == `map f . filter (p . f)` [when p doesn't depend on f]
 - `length . filter p` == length of elements satisfying p
 - `foldr (++) []` == concat
 - `map f` == `foldr ((:) . f) []`
 - `filter p` == `foldr (\x acc -> if p x then x:acc else acc) []`
-
 ## PROLOG COMMON IDIOMS:
-
 ```prolog
 member(X, L) :- % append(_, [X|_], L).
 last(L, X) :- % append(_, [X], L).
@@ -1415,9 +1130,7 @@ suffix(S, L) :- % append(_, S, L).
 reverse(L, R) :- % reverse(L, [], R).
 sublist(Sub, L) :- % append(_, Temp, L), append(Sub, _, Temp).
 ```
-
 ## ARITHMETIC EVALUATION:
-
 ```prolog
 - is: X is Expr           % Evaluates Expr and unifies with X
 Example: X is 2 + 3       % X = 5
@@ -1427,9 +1140,7 @@ Example: Y is 2 * (3 + 4) % Y = 14
 ✗ X is Y + 1 (if Y unbound) %% ERROR
 ✓ Y = 5, X is Y + 1         %% X = 6
 ```
-
 ## ARITHMETIC COMPARISON (evaluates both sides):
-
 ```prolog
 =:=: X =:= Y                % Arithmetic equality (evaluates expressions)
 % Example: 2 + 3 =:= 5      % true
@@ -1441,9 +1152,7 @@ Example: Y is 2 * (3 + 4) % Y = 14
 =<: X =< Y                  % Less than or equal (NOTE: =< not <=)
 >=: X >= Y                  % Greater than or equal
 ```
-
 ## TERM COMPARISON (no evaluation):
-
 ```prolog
 ==: X == Y                  % Strict equality (no unification)
 % Example: X == Y           % true only if X and Y already identical
@@ -1456,9 +1165,7 @@ Example: Y is 2 * (3 + 4) % Y = 14
 @=<: X @=< Y                % Term less or equal
 @>=: X @>= Y                % Term greater or equal
 ```
-
 ## UNIFICATION:
-
 ```prolog
 =: X = Y                    % Unification (tries to make X and Y identical)
 % Example: X = 5            % binds X to 5
@@ -1469,17 +1176,13 @@ Example: Y is 2 * (3 + 4) % Y = 14
 % Example: f(a) \= f(b)     % true
 % Example: X \= 5           % constrains X to not be 5
 ```
-    
 ## STANDARD TERM ORDER (for @<, @>, etc.):
-
 Variables < Numbers < Atoms < Compound Terms
 - Variables ordered alphabetically by name
 - Numbers ordered by value
 - Atoms ordered alphabetically
 - Compound terms ordered by: arity, then functor name, then arguments
-
 ## COMMON PITFALLS:
-
 ```prolog
 ✗ X = Y + 1                 % Does NOT evaluate! Just unifies X with term +(Y,1)
 ✓ X is Y + 1                % Evaluates Y + 1 and binds result to X
@@ -1488,9 +1191,7 @@ Variables < Numbers < Atoms < Compound Terms
 ✗ X =< 10                   % ERROR if X unbound (use for guards after instantiation)
 ✓ between(1, 10, X)         % generates X from 1 to 10
 ```
-
 ## TYPE CHECKING PREDICATES:
-
 ```prolog
 - var(X)                    % true if X is uninstantiated variable
 - nonvar(X)                 % true if X is instantiated
@@ -1503,7 +1204,6 @@ Variables < Numbers < Atoms < Compound Terms
 - atomic(X)                 % true if X is atom or number
 - ground(X)                 % true if X contains no variables
 ```
-
 ## EXAMPLES:
 ```prolog
 % Arithmetic
@@ -1518,4 +1218,427 @@ Variables < Numbers < Atoms < Compound Terms
 ?- 5 = 2 + 3.               % false (unification fails)
 ?- X = 2 + 3.               % X = 2 + 3 (creates term, doesn't eval)
 ?- X is 2 + 3, X =:= 5.     % true
+```
+# 2025/26
+## Haskell
+```hs
+type Node = String   -- some city
+type Dist = Int      -- some distance
+type Edges = [(Node,Node,Dist)] -- directed connections
+For example, the following edges represent some connections in Portugal (the distances are in kilometers).
+
+portugal :: Edges
+portugal = [ ("Porto", "Aveiro", 76)
+           , ("Aveiro", "Coimbra", 63)
+           , ("Aveiro", "Leiria", 117)
+           , ("Coimbra", "Leiria", 76)
+           , ("Leiria", "Santarem", 83)
+           , ("Santarem", "Lisboa", 82)
+           ]
+
+inverse :: Edges -> Edges
+inverse edges = [(y,x,d) | (x,y,d)<-edges]
+
+newEdges :: Edges -> Edges
+newEdges edges = [(x,z,d+d') | (x,y,d)<-edges, (y',z,d')<-edges, y'==y && x/=z]
+
+pathDistance :: Edges -> [Node] -> Maybe Dist
+pathDistance edges [] = Just 0
+pathDistance edges (start:path) = aux start 0 path
+  where
+    aux v acc [] = Just acc
+    aux v acc (u:path) =
+      case [d | (x,y,d)<-edges, x==v && y==u] of
+        (d:_) -> aux u (acc+d) path
+        [] -> Nothing
+
+shortest :: Edges -> Edges
+shortest [] = []
+shortest ((x,y,d):edges) = (x,y,d'):shortest edges'
+  where
+    d' = minimum (d : [d' | (a,b,d')<-edges, a==x && b==y])
+    edges' = [(a,b,d) | (a,b,d)<-edges, a/=x || b/=y]
+
+nodes :: Edges -> [Node]
+nodes edges = nub ([x | (x,_,_) <- edges] ++ [y | (_,y,_) <- edges])
+  where nub [] = []
+        nub (x:xs) = x : nub (filter (/= x) xs)
+
+outgoing :: Node -> Edges -> Edges
+outgoing node edges = [(x,y,d) | (x,y,d) <- edges, x == node]
+
+incoming :: Node -> Edges -> Edges
+incoming node edges = [(x,y,d) | (x,y,d) <- edges, y == node]
+
+neighbors :: Node -> Edges -> [(Node, Dist)]
+neighbors node edges = [(y,d) | (x,y,d) <- edges, x == node]
+
+connected :: Node -> Node -> Edges -> Bool
+connected x y edges = any (\(a,b,_) -> a == x && b == y) edges
+
+directDistance :: Node -> Node -> Edges -> Maybe Dist
+directDistance x y edges = case [d | (a,b,d) <- edges, a == x, b == y] of
+  (d:_) -> Just d
+  [] -> Nothing
+
+undirected :: Edges -> Edges
+undirected edges = edges ++ inverse edges
+
+filterByDistance :: (Dist -> Bool) -> Edges -> Edges
+filterByDistance pred edges = [(x,y,d) | (x,y,d) <- edges, pred d]
+
+shorterThan, longerThan :: Dist -> Edges -> Edges
+shorterThan maxDist = filterByDistance (< maxDist)
+longerThan minDist = filterByDistance (> minDist)
+
+totalDistance :: Edges -> Dist
+totalDistance edges = sum [d | (_,_,d) <- edges]
+
+averageDistance :: Edges -> Double
+averageDistance edges = fromIntegral (totalDistance edges) / fromIntegral (length edges)
+
+longestEdge :: Edges -> Maybe (Node, Node, Dist)
+longestEdge [] = Nothing
+longestEdge edges = Just (maxBy (\(_,_,d1) (_,_,d2) -> compare d1 d2) edges)
+  where maxBy _ [x] = x
+        maxBy cmp (x:xs) = let y = maxBy cmp xs in if cmp x y == GT then x else y
+
+shortestEdge :: Edges -> Maybe (Node, Node, Dist)
+shortestEdge [] = Nothing
+shortestEdge edges = Just (minBy (\(_,_,d1) (_,_,d2) -> compare d1 d2) edges)
+  where minBy _ [x] = x
+        minBy cmp (x:xs) = let y = minBy cmp xs in if cmp x y == LT then x else y
+
+validPath :: Edges -> [Node] -> Bool
+validPath _ [] = True
+validPath _ [_] = True
+validPath edges (x:y:rest) = connected x y edges && validPath edges (y:rest)
+
+destinations :: Edges -> [Node]
+destinations edges = [n | n <- nodes edges, null (outgoing n edges)]
+
+sources :: Edges -> [Node]
+sources edges = [n | n <- nodes edges, null (incoming n edges)]
+
+outDegree :: Node -> Edges -> Int
+outDegree node edges = length (outgoing node edges)
+
+inDegree :: Node -> Edges -> Int
+inDegree node edges = length (incoming node edges)
+
+pathsOfLength :: Int -> Node -> Node -> Edges -> [[Node]]
+pathsOfLength 0 start end _ = if start == end then [[start]] else []
+pathsOfLength n start end edges
+  | n < 0 = []
+  | otherwise = [[start] ++ path | (next, _) <- neighbors start edges, 
+                                     path <- pathsOfLength (n-1) next end edges]
+```
+
+## Prolog
+```prolog
+bird(robinho,    robin,   male,   [red, brown, white]).
+bird(robina,     robin,   female, [brown, red, white]).
+bird(ferrugem,   robin,   male,   [brown, gray]).
+
+bird(arcoiris,   parrot,  male,   [red, blue, green, yellow]).
+bird(verdeja,    parrot,  female, [green, yellow]).
+
+bird(minerva,    owl,     female, [brown, white]).
+bird(noctis,     owl,     male,   [gray, white]).
+bird(sabia,      owl,     female, [beige, brown]).
+
+male(Name):-
+    bird(Name, _, male, _).
+
+has_more_color_of(N, C1, C2):-
+    bird(N, _, _, Cs),
+    append(_, [C1|T], Cs),
+    append(_, [C2|_], T).
+
+most_colorful(Sp, N, NC):-
+    bird(N, Sp, _, Cs),
+    length(Cs, NC),
+    \+((
+        bird(_, Sp, _, Cs1),
+        length(Cs1, NC1),
+        NC1 > NC
+    )).
+
+unique_colors(Sp, L):-
+    unique_colors_aux(Sp, [], L).
+
+unique_colors_aux(Sp, Acc, Sol):-
+    bird(_, Sp, _, Cs),
+    member(C, Cs),
+    \+ member(C, Acc),
+    !,
+    unique_colors_aux(Sp, [C|Acc], Sol).
+unique_colors_aux(_, Acc, Acc).
+
+is_color_permutation(N1, N2) :-
+    bird(N1, _, _, Cs1),
+    bird(N2, _, _, Cs2),
+    N1 \= N2,
+    sort(Cs1, Sorted),
+    sort(Cs2, Sorted).
+
+dif_n_colors(Sp, D):-
+    findall(N, ( bird(_, Sp, _, Cs), length(Cs, N) ), L),
+    sort(L, Sorted),
+    last(Sorted, Max),
+    Sorted = [Min|_],
+    D is Max - Min.
+
+most_common_color_per_species(Sp, Color):-
+    bagof(C, (N,G,Cs)^( bird(N, Sp, G, Cs), member(C, Cs) ), Colors),
+    setof(N-C, (Rest,All,LRest)^( member(C, Colors), delete(Colors, C, Rest), length(Colors, All), length(Rest, LRest), N is All-LRest ), Counts),
+    last(Counts, MaxN-_),
+	member(MaxN-Color, Counts).
+
+colorful_routes(Ni, Nf, L):-
+    L = [_, _, _, _, _ | _],
+    dfs([Ni], Nf, L).
+
+dfs([Nf|_], Nf, [Nf]).
+dfs([Na|Acc], Nf, [Na|Path]):-
+    bird(Na, _, _, [Ca|_]),
+    bird(Nb, _, _, [Cb|_]),
+    Ca \= Cb,
+    \+ member(Nb, Acc),
+    dfs([Nb,Na|Acc], Nf, Path).
+
+birds_of_species(Species, Birds):-
+    findall(Name, bird(Name, Species, _, _), Birds).
+
+birds_by_gender(Gender, Birds):-
+    findall(Name, bird(Name, _, Gender, _), Birds).
+
+female(Name):-
+    bird(Name, _, female, _).
+
+count_species(Species, Count):-
+    findall(Name, bird(Name, Species, _, _), Birds),
+    length(Birds, Count).
+
+count_gender(Gender, Count):-
+    findall(Name, bird(Name, _, Gender, _), Birds),
+    length(Birds, Count).
+
+has_color(Name, Color):-
+    bird(Name, _, _, Colors),
+    member(Color, Colors).
+
+birds_with_color(Color, Birds):-
+    findall(Name, (bird(Name, _, _, Colors), member(Color, Colors)), Birds).
+
+color_count(Name, Count):-
+    bird(Name, _, _, Colors),
+    length(Colors, Count).
+
+least_colorful(Species, Name, Count):-
+    bird(Name, Species, _, Colors),
+    length(Colors, Count),
+    \+ (
+        bird(_, Species, _, OtherColors),
+        length(OtherColors, OtherCount),
+        OtherCount < Count
+    ).
+
+all_species(Species):-
+    setof(S, (N,G,C)^bird(N, S, G, C), Species).
+
+all_colors(Colors):-
+    findall(C, (bird(_, _, _, Cs), member(C, Cs)), AllColors),
+    sort(AllColors, Colors).
+
+share_color(Name1, Name2):-
+    bird(Name1, _, _, Colors1),
+    bird(Name2, _, _, Colors2),
+    Name1 \= Name2,
+    member(C, Colors1),
+    member(C, Colors2).
+
+common_colors(Name1, Name2, Common):-
+    bird(Name1, _, _, Colors1),
+    bird(Name2, _, _, Colors2),
+    findall(C, (member(C, Colors1), member(C, Colors2)), Common).
+
+birds_with_n_colors(N, Birds):-
+    findall(Name, (bird(Name, _, _, Colors), length(Colors, N)), Birds).
+
+has_all_colors(Name, RequiredColors):-
+    bird(Name, _, _, BirdColors),
+    forall(member(C, RequiredColors), member(C, BirdColors)).
+
+has_only_colors(Name, AllowedColors):-
+    bird(Name, _, _, BirdColors),
+    forall(member(C, BirdColors), member(C, AllowedColors)).
+
+unique_coloring(Name):-
+    bird(Name, _, _, Colors),
+    \+ (
+        bird(OtherName, _, _, OtherColors),
+        Name \= OtherName,
+        sort(Colors, Sorted),
+        sort(OtherColors, Sorted)
+    ).
+
+most_diverse_species(Species, Diversity):-
+    dif_n_colors(Species, Diversity),
+    \+ (
+        dif_n_colors(OtherSpecies, OtherDiversity),
+        Species \= OtherSpecies,
+        OtherDiversity > Diversity
+    ).
+
+male_birds_of_species(Species, Males):-
+    findall(Name, bird(Name, Species, male, _), Males).
+
+female_birds_of_species(Species, Females):-
+    findall(Name, bird(Name, Species, female, _), Females).
+
+gender_ratio(Species, Males-Females):-
+    findall(Name, bird(Name, Species, male, _), MaleList),
+    findall(Name, bird(Name, Species, female, _), FemaleList),
+    length(MaleList, Males),
+    length(FemaleList, Females).
+
+dominant_color(Name, Color):-
+    bird(Name, _, _, [Color|_]).
+
+same_dominant_color(Name1, Name2):-
+    dominant_color(Name1, Color),
+    dominant_color(Name2, Color),
+    Name1 \= Name2.
+
+color_at_position(Color, Position, Birds):-
+    findall(Name, (
+        bird(Name, _, _, Colors),
+        nth1(Position, Colors, Color)
+    ), Birds).
+
+color_frequency(Color, Count):-
+    findall(Color, (bird(_, _, _, Colors), member(Color, Colors)), AllOccurrences),
+    length(AllOccurrences, Count).
+
+most_common_color(Color):-
+    all_colors(Colors),
+    member(Color, Colors),
+    color_frequency(Color, Count),
+    \+ (
+        member(OtherColor, Colors),
+        color_frequency(OtherColor, OtherCount),
+        OtherCount > Count
+    ).
+
+least_common_color(Color):-
+    all_colors(Colors),
+    member(Color, Colors),
+    color_frequency(Color, Count),
+    \+ (
+        member(OtherColor, Colors),
+        color_frequency(OtherColor, OtherCount),
+        OtherCount < Count
+    ).
+
+exact_color_match(RequiredColors, Birds):-
+    findall(Name, (
+        bird(Name, _, _, BirdColors),
+        sort(RequiredColors, SortedRequired),
+        sort(BirdColors, SortedRequired)
+    ), Birds).
+
+species_with_min_count(MinCount, SpeciesList):-
+    findall(Species, (
+        all_species(AllSpecies),
+        member(Species, AllSpecies),
+        count_species(Species, Count),
+        Count >= MinCount
+    ), SpeciesList).
+
+universal_color_in_species(Species, Color):-
+    bird(_, Species, _, _),
+    forall(
+        bird(Name, Species, _, Colors),
+        member(Color, Colors)
+    ).
+
+universal_colors(Species, UniversalColors):-
+    all_colors(AllColors),
+    findall(Color, (
+        member(Color, AllColors),
+        universal_color_in_species(Species, Color)
+    ), UniversalColors).
+
+color_permutation_pairs(Pairs):-
+    findall(Name1-Name2, (
+        is_color_permutation(Name1, Name2),
+        Name1 @< Name2  % Avoid duplicates
+    ), Pairs).
+
+distinct_colors_in_species(Species, Count):-
+    findall(C, (bird(_, Species, _, Colors), member(C, Colors)), AllColors),
+    sort(AllColors, UniqueColors),
+    length(UniqueColors, Count).
+
+most_colorful_species(Species, ColorCount):-
+    all_species(AllSpecies),
+    member(Species, AllSpecies),
+    distinct_colors_in_species(Species, ColorCount),
+    \+ (
+        member(OtherSpecies, AllSpecies),
+        distinct_colors_in_species(OtherSpecies, OtherCount),
+        OtherCount > ColorCount
+    ).
+
+name_contains(Substring, Name):-
+    bird(Name, _, _, _),
+    atom_chars(Name, NameChars),
+    atom_chars(Substring, SubChars),
+    append(_, Rest, NameChars),
+    append(SubChars, _, Rest).
+
+birds_by_color_count(SortedBirds):-
+    findall(Count-Name, (
+        bird(Name, _, _, Colors),
+        length(Colors, Count)
+    ), Pairs),
+    sort(0, @>=, Pairs, SortedPairs),
+    findall(Name, member(_-Name, SortedPairs), SortedBirds).
+
+balanced_species(Species):-
+    gender_ratio(Species, Males-Females),
+    Males =:= Females.
+
+unbalanced_species(Species, Males-Females):-
+    gender_ratio(Species, Males-Females),
+    Males =\= Females.
+
+potential_mates(Name1, Name2):-
+    bird(Name1, Species, Gender1, Colors1),
+    bird(Name2, Species, Gender2, Colors2),
+    Gender1 \= Gender2,
+    Name1 @< Name2,
+    member(C, Colors1),
+    member(C, Colors2).
+
+average_colors_per_species(Species, Average):-
+    findall(Count, (
+        bird(_, Species, _, Colors),
+        length(Colors, Count)
+    ), Counts),
+    sum_list(Counts, Sum),
+    length(Counts, Len),
+    Len > 0,
+    Average is Sum / Len.
+
+all_different_color_counts(Species):-
+    findall(Count, (
+        bird(_, Species, _, Colors),
+        length(Colors, Count)
+    ), Counts),
+    sort(Counts, SortedCounts),
+    length(Counts, Len1),
+    length(SortedCounts, Len2),
+    Len1 =:= Len2.
 ```
